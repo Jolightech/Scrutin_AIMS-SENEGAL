@@ -2746,6 +2746,12 @@ body.screen {
     line-height: 1.3;
 }
 
+.screen-join a {
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
 .screen-join-code {
     display: block;
     color: #fff;

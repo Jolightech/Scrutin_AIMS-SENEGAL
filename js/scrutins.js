@@ -747,11 +747,13 @@
             + '</form>'
             + '<hr class="sep">'
             + '<div class="row">'
+            + '<button class="btn btn-danger" type="button" data-admin-reset-results>Réinitialiser les résultats</button>'
             + '<button class="btn btn-danger" type="button" data-admin-reset-all>Réinitialiser tout le tableau de bord</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset-votes>Effacer uniquement les bulletins et les votants</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset>Recharger les données de démonstration</button>'
             + '</div>'
-            + '<p class="small muted" style="margin:.8rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin. Le code secret est conservé.</p>'
+            + '<p class="small muted" style="margin:.8rem 0 0">« Réinitialiser les résultats » remet à zéro l\'onglet Résultats et la vue vidéoprojecteur (bulletins, voix, graphiques, élu(e)). Candidats et votants sont conservés.</p>'
+            + '<p class="small muted" style="margin:.4rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin. Le code secret est conservé.</p>'
             + '</div>';
 
         root.innerHTML = html;
@@ -1150,6 +1152,19 @@
         hit = target.closest('[data-admin-export-voters]');
         if (hit) {
             exportVotersCsv();
+
+            return;
+        }
+
+        hit = target.closest('[data-admin-reset-results]');
+        if (hit) {
+            if (window.confirm('Réinitialiser tous les résultats ?\n\nL\'onglet Résultats et la vue vidéoprojecteur repartent de zéro : bulletins, voix, graphiques et élu(e).')) {
+                if (window.PreviewResults) {
+                    window.PreviewResults.reset();
+                }
+                notice = { kind: 'success', text: 'Les résultats ont été remis à zéro.' };
+                renderAdmin();
+            }
 
             return;
         }
