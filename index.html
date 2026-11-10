@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vote AIMS — aperçu de l'interface</title>
+    <link rel="stylesheet" href="css/aims.css">
+    <style>
+        /* Habillage propre à l'aperçu : n'existe pas dans le projet Laravel. */
+        .preview-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(255, 255, 255, .94);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .preview-bar-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: .55rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .preview-tag {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .preview-tabs {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin-left: auto;
+            min-width: 0;
+        }
+
+        .preview-bar .btn {
+            flex: none;
+        }
+
+        /* En plein écran, la vue vidéoprojecteur occupe tout l'écran. */
+        .screen-demo:fullscreen {
+            border-radius: 0;
+            overflow: auto;
+            display: grid;
+            align-content: center;
+        }
+
+        .screen-demo:fullscreen .screen-wrap {
+            padding: 3vh 3vw;
+            width: 100%;
+        }
+
+        .preview-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .preview-tabs .segmented {
+            white-space: nowrap;
+        }
+
+        .panel[hidden] {
+            display: none;
+        }
+
+        /* Légende d'un état montré à titre d'exemple dans l'aperçu. */
+        .preview-caption {
+            margin: 2rem 0 .7rem;
+            font-size: .92rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .narrow {
+            max-width: 660px;
+            margin-inline: auto;
+        }
+
+        /* Le vidéoprojecteur applique sa classe au <body> dans le projet ;
+           ici on la pose sur un conteneur pour l'afficher dans la page. */
+        .screen-demo {
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .screen-demo .screen-wrap {
+            padding: clamp(1.3rem, 3vw, 2.4rem);
+        }
+
+        @media (max-width: 700px) {
+            .preview-tag {
+                display: none;
+            }
+
+            .preview-tabs {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="#accueil" data-goto="accueil">
+            <img class="brand-logo" src="img/aims-senegal-logo.jpg" alt="AIMS Sénégal — African Institute for Mathematical Sciences">
+            <span class="brand-text">
+                <span class="brand-name">AIMS Sénégal</span>
+                <span class="brand-sub">Élections des délégués et focal points</span>
+            </span>
+        </a>
+        <nav class="nav" aria-label="Navigation principale">
+            <a href="#accueil" data-goto="accueil" data-nav="vote" class="is-active">Voter</a>
+            <a href="#admin" data-goto="admin" data-nav="admin">Administration</a>
+        </nav>
+    </div>
+</header>
+
+<div class="preview-bar">
+    <div class="preview-bar-inner">
+        <span class="preview-tag">Aperçu statique, données fictives</span>
+        <div class="preview-tabs">
+            <div class="segmented" role="tablist" aria-label="Écrans de l'aperçu">
+                <button role="tab" aria-selected="true" data-panel="accueil">Accueil</button>
+                <button role="tab" aria-selected="false" data-panel="email">Vérification</button>
+                <button role="tab" aria-selected="false" data-panel="bulletin">Bulletins</button>
+                <button role="tab" aria-selected="false" data-panel="resultats">Résultats</button>
+                <button role="tab" aria-selected="false" data-panel="ecran">Vidéoprojecteur</button>
+                <button role="tab" aria-selected="false" data-panel="admin">Administration</button>
+            </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" data-demo-replay title="Relancer le scrutin de démonstration">Rejouer</button>
+    </div>
+</div>
+
+<main class="container">
+
+    <!-- ======================================================= 1. Accueil -->
+    <section class="panel" id="panel-accueil">
+        <section class="hero">
+            <div class="hero-grid">
+                <div>
+                    <h1 class="hero-title">Élis tes focal points, en quelques minutes.</h1>
+                    <p class="hero-lead">
+                        Entre le code, vérifie ton adresse, puis vote pour chacun des quatre scrutins :
+                        Academic, Health, Online, Logistics. Les résultats s'affichent en direct, et ton vote reste anonyme.
+                    </p>
+
+                    <form class="hero-form" onsubmit="return false">
+                        <label class="label" for="hero-code">Code du scrutin</label>
+                        <input class="input code-input" id="hero-code" type="text" value="AIMS26" readonly>
+                        <button class="btn btn-lg" type="submit" data-goto="email">Voter</button>
+                    </form>
+
+                    <ul class="hero-bullets">
+                        <li>Choix secret</li>
+                        <li>Résultats en direct</li>
+                        <li>Un bulletin par personne et par scrutin</li>
+                    </ul>
+                </div>
+
+                <div class="float-card" aria-hidden="true">
+                    <div class="float-head"><span class="live-dot"></span> <span data-demo-live-short>Résultats en direct</span></div>
+                    <div class="chart" data-demo-ring style="max-width:210px; margin-bottom:1.1rem"></div>
+                    <div data-demo-mini>
+                        <div class="float-row">
+                            <span class="float-name">Aminata</span>
+                            <span class="track"><span class="track-fill" style="width:100%"></span></span>
+                            <span class="float-value">9</span>
+                        </div>
+                        <div class="float-row">
+                            <span class="float-name">Moussa</span>
+                            <span class="track"><span class="track-fill" style="width:78%"></span></span>
+                            <span class="float-value">7</span>
+                        </div>
+                        <div class="float-row">
+                            <span class="float-name">Fatou</span>
+                            <span class="track"><span class="track-fill" style="width:67%"></span></span>
+                            <span class="float-value">6</span>
+                        </div>
+                    </div>
+                    <p class="float-foot">Mise à jour toutes les 2 secondes, sans recharger la page.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2>Les scrutins</h2>
+                    <p>Quatre focal points à élire : Academic, Health, Online et Logistics. Chaque scrutin a ses propres candidats et son propre code.</p>
+                </div>
+            </div>
+            <div class="grid grid-2" data-scrutins-home></div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2>Comment ça marche</h2>
+                    <p>Quatre étapes, aucune inscription, aucun mot de passe à retenir.</p>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step"><div class="step-num">1</div><h3>Entre le code</h3><p>L'administrateur le projette ou te l'envoie. Six caractères, c'est tout.</p></div>
+                <div class="step"><div class="step-num">2</div><h3>Vérifie ton adresse</h3><p>Seule une adresse en …senegal.org donne accès aux bulletins ; toute autre adresse est refusée.</p></div>
+                <div class="step"><div class="step-num">3</div><h3>Vote pour chaque scrutin</h3><p>Academic, Health, Online, Logistics : un bulletin par scrutin, photos et slogans sur un même écran. Vote blanc possible.</p></div>
+                <div class="step"><div class="step-num">4</div><h3>Suis le direct</h3><p>La courbe bouge à chaque bulletin. À la clôture, le vainqueur s'affiche seul.</p></div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2>Ton choix reste secret.</h2>
+                    <p>Voici ce qui se passe quand tu saisis ton adresse.</p>
+                </div>
+            </div>
+            <div class="split split-rev" style="margin-top:0">
+                <div class="card">
+                    <ul class="points">
+                        <li><span class="point-check">&#10003;</span><span><b>Seules les adresses …senegal.org votent</b><span>Toute autre adresse est refusée avant même d'accéder aux bulletins.</span></span></li>
+                        <li><span class="point-check">&#10003;</span><span><b>Un seul bulletin par personne et par scrutin</b><span>Ton adresse est inscrite sur la liste d'émargement : impossible de voter deux fois au même scrutin, même depuis un autre téléphone.</span></span></li>
+                        <li><span class="point-check">&#10003;</span><span><b>Ton choix n'est pas relié à ton adresse</b><span>La liste d'émargement dit seulement <i>qui</i> a voté ; les bulletins, eux, ne portent aucune adresse. Personne ne peut savoir pour qui tu as voté.</span></span></li>
+                    </ul>
+                </div>
+                <div class="card center" style="display:flex; flex-direction:column; justify-content:center; align-items:center">
+                    <p class="eyebrow">Après ton vote</p>
+                    <h3 style="font-size:1.25rem; margin-bottom:1rem">Tu reçois un reçu</h3>
+                    <div class="receipt">H4KP-2RQM</div>
+                    <p class="small muted" style="margin:1rem 0 0; max-width:32ch">Ce code prouve que ton bulletin a bien été compté, sans révéler pour qui tu as voté.</p>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <!-- ================================================ 2. Vérification -->
+    <section class="panel" id="panel-email" hidden>
+        <div class="narrow">
+            <ol class="stepper" aria-label="Étapes du vote">
+                <li class="is-done">Code</li>
+                <li class="is-current" aria-current="step">Adresse</li>
+                <li>Bulletin</li>
+                <li>Reçu</li>
+            </ol>
+
+            <div class="page-head">
+                <div class="row" style="margin-bottom:.7rem">
+                    <span class="badge">Focal Points</span>
+                    <span class="badge badge-open">Ouvert</span>
+                </div>
+                <h1>Élections des focal points</h1>
+                <p class="lead">Quatre scrutins : Academic, Health, Online et Logistics. Un bulletin par scrutin, vote blanc autorisé.</p>
+            </div>
+
+            <!-- Rendu par js/scrutins.js : seules les adresses …senegal.org sont acceptées. -->
+            <div data-scrutins-email></div>
+        </div>
+    </section>
+
+    <!-- ===================================================== 3. Bulletin -->
+    <section class="panel" id="panel-bulletin" hidden>
+        <!-- Rendu par js/scrutins.js : un bulletin par type de scrutin. -->
+        <div data-scrutins-ballot></div>
+    </section>
+
+    <!-- ==================================================== 4. Résultats -->
+    <section class="panel" id="panel-resultats" hidden>
+        <div class="page-head">
+            <div class="row" style="margin-bottom:.7rem">
+                <span class="badge">Focal Point</span>
+                <span class="badge badge-open" data-demo-status>Ouvert</span>
+            </div>
+            <h1>Focal Point Academic — Promotion 2026</h1>
+            <div class="row" style="margin-top:.7rem">
+                <span class="live-dot" aria-hidden="true"></span>
+                <span class="muted" data-demo-live aria-live="polite">Mise à jour automatique toutes les 2 secondes</span>
+                <span class="spacer row">
+                    <button class="btn btn-ghost btn-sm" type="button" data-goto="ecran">Vue vidéoprojecteur</button>
+                </span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat stat-brand">
+                <div class="stat-value" data-demo-stat="ballots">27</div>
+                <div class="stat-label">Bulletins reçus</div>
+                <div class="stat-foot">sur 40 inscrits</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-demo-stat="votes">25</div>
+                <div class="stat-label">Voix exprimées</div>
+                <div class="stat-foot">réparties entre 4 candidats</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-demo-stat="abstentions">2</div>
+                <div class="stat-label">Votes blancs</div>
+                <div class="stat-foot"><span data-demo-stat="blankShare">7,4 %</span> des bulletins</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-demo-stat="remaining">13</div>
+                <div class="stat-label">Restent à voter</div>
+                <div class="stat-foot">inscrits sans bulletin</div>
+            </div>
+        </div>
+
+        <div class="winner-slot" data-demo-winner></div>
+
+        <div class="split">
+            <div class="card" style="display:flex; flex-direction:column">
+                <div class="card-head">
+                    <div>
+                        <h2>Participation</h2>
+                        <p class="card-sub">Un rayon par inscrit ; il s'allume quand le bulletin arrive.</p>
+                    </div>
+                </div>
+                <div style="flex:1; display:grid; place-items:center; padding:.4rem 0 .6rem">
+                    <div class="chart" data-demo-ring></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <h2>Classement</h2>
+                        <p class="card-sub">Part des suffrages exprimés ; le repère marque la majorité absolue.</p>
+                    </div>
+                </div>
+                <p class="card-lead" data-demo-headline></p>
+                <div class="chart" data-demo-share data-legend="off" style="margin-bottom:.9rem"></div>
+                <div class="results chart" data-demo-results></div>
+            </div>
+        </div>
+
+        <div class="split split-rev">
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <h2>Évolution du vote</h2>
+                        <p class="card-sub">Cumul des voix de chaque candidat depuis le premier bulletin.</p>
+                    </div>
+                </div>
+                <div class="chart" data-chart data-demo-chart></div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div>
+                        <h2>Rythme du vote</h2>
+                        <p class="card-sub">Voix reçues par tranche de 3 minutes.</p>
+                    </div>
+                </div>
+                <div class="chart" data-demo-pace data-height="350"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <details class="data-details">
+                <summary>Voir les données en tableau</summary>
+                <div data-demo-table></div>
+            </details>
+        </div>
+
+        <p class="preview-caption">Exemple : variante « résultats sous scellés »</p>
+        <div class="card">
+            <p class="muted" style="font-size:.98rem">
+                Réglage par scrutin, pour ne pas influencer les votants : seule la
+                participation est diffusée pendant le vote.
+            </p>
+            <div class="masked">
+                <h3>Résultats sous scellés</h3>
+                <p>Le détail par candidat sera publié à la clôture du scrutin.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================== 5. Vidéoprojecteur -->
+    <section class="panel" id="panel-ecran" hidden>
+        <div class="page-head">
+            <h1>Vue vidéoprojecteur</h1>
+            <p class="lead">
+                Page plein écran à projeter pendant le dépouillement en direct :
+                gros chiffres, candidat de tête en or, aucun élément d'interface.
+            </p>
+            <div class="row" style="margin-top:1rem">
+                <button class="btn btn-ghost btn-sm" type="button" data-fullscreen>Afficher en plein écran</button>
+            </div>
+        </div>
+
+        <div class="screen-demo screen">
+            <div class="screen-wrap">
+                <div class="screen-head">
+                    <div>
+                        <div class="eyebrow">AIMS Sénégal, Focal Point Academic</div>
+                        <h1>Promotion 2026</h1>
+                    </div>
+                    <div class="screen-stats">
+                        <div>
+                            <div class="screen-stat-value" data-demo-stat="ballots">27</div>
+                            <div class="screen-stat-label">Bulletins</div>
+                        </div>
+                        <div>
+                            <div class="screen-stat-value" data-demo-stat="votes">25</div>
+                            <div class="screen-stat-label">Voix exprimées</div>
+                        </div>
+                        <div>
+                            <div class="screen-stat-value" data-demo-stat="abstentions">2</div>
+                            <div class="screen-stat-label">Votes blancs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="winner-slot" data-demo-winner></div>
+
+                <div class="screen-grid">
+                    <div>
+                        <h2 class="screen-panel-title">Classement</h2>
+                        <p class="card-lead" data-demo-headline></p>
+                        <div class="chart" data-demo-share data-variant="tall" data-legend="off" style="margin-bottom:1.2vh"></div>
+                        <div class="results chart" data-demo-results></div>
+                    </div>
+                    <div class="screen-side">
+                        <div>
+                            <h2 class="screen-panel-title">Participation</h2>
+                            <div class="chart" data-demo-ring style="max-width:270px"></div>
+                        </div>
+                        <div>
+                            <h2 class="screen-panel-title">Évolution du vote</h2>
+                            <div class="chart" data-chart data-demo-chart data-height="250"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screen-footer">
+                    <span class="badge badge-open" data-demo-status>Ouvert</span>
+                    <span data-demo-live-short>Résultats en direct</span>
+                    <div class="screen-join">
+                        <div>
+                            Pour voter : vote.aims-senegal.org
+                            <span class="screen-join-code">ACAD26</span>
+                        </div>
+                        <svg class="screen-qr" viewBox="-2 -2 37 37" role="img" aria-label="QR code du lien de vote" shape-rendering="crispEdges"><path fill="#1c1314" d="M0 0h7v1h-7zM8 0h4v1h-4zM13 0h1v1h-1zM17 0h5v1h-5zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h6v1h-6zM16 1h2v1h-2zM20 1h1v1h-1zM22 1h2v1h-2zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM15 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM23 2h2v1h-2zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM14 3h2v1h-2zM17 3h1v1h-1zM19 3h1v1h-1zM23 3h2v1h-2zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM11 4h4v1h-4zM17 4h1v1h-1zM19 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM16 5h1v1h-1zM18 5h2v1h-2zM22 5h1v1h-1zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM17 7h2v1h-2zM22 7h3v1h-3zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM9 8h1v1h-1zM11 8h2v1h-2zM14 8h1v1h-1zM16 8h4v1h-4zM21 8h1v1h-1zM26 8h1v1h-1zM29 8h1v1h-1zM31 8h2v1h-2zM2 9h4v1h-4zM7 9h1v1h-1zM12 9h1v1h-1zM14 9h1v1h-1zM16 9h5v1h-5zM23 9h2v1h-2zM26 9h2v1h-2zM29 9h4v1h-4zM0 10h1v1h-1zM4 10h3v1h-3zM8 10h2v1h-2zM12 10h1v1h-1zM14 10h1v1h-1zM18 10h1v1h-1zM22 10h8v1h-8zM31 10h2v1h-2zM0 11h1v1h-1zM2 11h1v1h-1zM4 11h2v1h-2zM9 11h8v1h-8zM18 11h3v1h-3zM24 11h2v1h-2zM27 11h1v1h-1zM29 11h1v1h-1zM31 11h2v1h-2zM0 12h2v1h-2zM4 12h1v1h-1zM6 12h3v1h-3zM11 12h1v1h-1zM15 12h1v1h-1zM17 12h1v1h-1zM20 12h1v1h-1zM22 12h1v1h-1zM25 12h1v1h-1zM27 12h3v1h-3zM2 13h1v1h-1zM8 13h2v1h-2zM12 13h2v1h-2zM15 13h3v1h-3zM19 13h1v1h-1zM21 13h2v1h-2zM24 13h1v1h-1zM27 13h1v1h-1zM31 13h1v1h-1zM0 14h1v1h-1zM3 14h1v1h-1zM5 14h4v1h-4zM12 14h1v1h-1zM14 14h1v1h-1zM16 14h5v1h-5zM22 14h1v1h-1zM24 14h1v1h-1zM26 14h2v1h-2zM29 14h1v1h-1zM0 15h1v1h-1zM2 15h1v1h-1zM4 15h2v1h-2zM7 15h8v1h-8zM19 15h5v1h-5zM25 15h2v1h-2zM28 15h3v1h-3zM0 16h2v1h-2zM6 16h1v1h-1zM9 16h2v1h-2zM14 16h3v1h-3zM18 16h6v1h-6zM25 16h2v1h-2zM28 16h1v1h-1zM30 16h1v1h-1zM1 17h1v1h-1zM4 17h2v1h-2zM8 17h1v1h-1zM11 17h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM22 17h3v1h-3zM26 17h1v1h-1zM28 17h2v1h-2zM32 17h1v1h-1zM3 18h1v1h-1zM6 18h1v1h-1zM10 18h1v1h-1zM12 18h2v1h-2zM15 18h3v1h-3zM20 18h2v1h-2zM24 18h2v1h-2zM27 18h2v1h-2zM30 18h2v1h-2zM1 19h5v1h-5zM8 19h2v1h-2zM14 19h4v1h-4zM19 19h2v1h-2zM23 19h4v1h-4zM28 19h1v1h-1zM31 19h1v1h-1zM0 20h5v1h-5zM6 20h1v1h-1zM11 20h1v1h-1zM13 20h1v1h-1zM15 20h3v1h-3zM19 20h1v1h-1zM21 20h1v1h-1zM29 20h3v1h-3zM0 21h2v1h-2zM3 21h1v1h-1zM9 21h1v1h-1zM13 21h1v1h-1zM15 21h2v1h-2zM18 21h3v1h-3zM22 21h2v1h-2zM26 21h2v1h-2zM29 21h2v1h-2zM32 21h1v1h-1zM2 22h2v1h-2zM6 22h1v1h-1zM8 22h2v1h-2zM12 22h4v1h-4zM17 22h1v1h-1zM22 22h5v1h-5zM28 22h2v1h-2zM31 22h2v1h-2zM1 23h1v1h-1zM3 23h3v1h-3zM9 23h1v1h-1zM11 23h1v1h-1zM13 23h2v1h-2zM16 23h1v1h-1zM18 23h3v1h-3zM24 23h4v1h-4zM29 23h1v1h-1zM31 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM5 24h2v1h-2zM8 24h2v1h-2zM11 24h1v1h-1zM15 24h1v1h-1zM17 24h1v1h-1zM19 24h2v1h-2zM22 24h1v1h-1zM24 24h5v1h-5zM32 24h1v1h-1zM8 25h1v1h-1zM10 25h4v1h-4zM15 25h2v1h-2zM19 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM28 25h2v1h-2zM0 26h7v1h-7zM8 26h1v1h-1zM14 26h1v1h-1zM16 26h1v1h-1zM18 26h7v1h-7zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h1v1h-1zM10 27h4v1h-4zM16 27h1v1h-1zM20 27h2v1h-2zM23 27h2v1h-2zM28 27h5v1h-5zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM13 28h5v1h-5zM19 28h10v1h-10zM30 28h1v1h-1zM32 28h1v1h-1zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h2v1h-2zM12 29h1v1h-1zM16 29h3v1h-3zM20 29h1v1h-1zM22 29h3v1h-3zM27 29h1v1h-1zM30 29h1v1h-1zM32 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h3v1h-3zM15 30h1v1h-1zM20 30h1v1h-1zM23 30h1v1h-1zM26 30h2v1h-2zM29 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM10 31h1v1h-1zM12 31h2v1h-2zM17 31h1v1h-1zM19 31h1v1h-1zM22 31h4v1h-4zM27 31h2v1h-2zM32 31h1v1h-1zM0 32h7v1h-7zM8 32h5v1h-5zM16 32h2v1h-2zM21 32h3v1h-3zM25 32h1v1h-1zM28 32h1v1h-1zM30 32h1v1h-1z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================ 6. Administration -->
+    <section class="panel" id="panel-admin" hidden>
+        <div class="page-head">
+            <p class="eyebrow">Administration</p>
+            <h1>Gestion des scrutins</h1>
+            <p class="lead">Quatre types de scrutin : Focal Point Academic, Health, Online et Logistics. Ajoutez les candidats de chacun, ouvrez puis clôturez le vote.</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat stat-brand">
+                <div class="stat-value" data-admin-stat="scrutins">4</div>
+                <div class="stat-label">Scrutins</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-admin-stat="open">4</div>
+                <div class="stat-label">Ouverts</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-admin-stat="candidates">0</div>
+                <div class="stat-label">Candidats</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" data-admin-stat="ballots">0</div>
+                <div class="stat-label">Bulletins</div>
+            </div>
+        </div>
+
+        <!-- Rendu par js/scrutins.js : réglages et candidats du scrutin choisi. -->
+        <div data-scrutins-admin></div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    AIMS Sénégal, plateforme de vote interne.<br>
+    Le choix de chaque votant reste secret : les bulletins ne portent aucune adresse email.
+</footer>
+
+<script src="js/ballot.js"></script>
+<script src="js/scrutins.js"></script>
+<script src="js/live.js"></script>
+<script src="js/chart.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        var LOCALE = 'fr-FR';
+
+        function all(selector, root) {
+            return Array.prototype.slice.call((root || document).querySelectorAll(selector));
+        }
+
+        function pct(ratio) {
+            return (ratio * 100).toLocaleString(LOCALE, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            }) + ' %';
+        }
+
+        /* ---------------------------------------------------------- onglets */
+        var tabs = all('.preview-tabs [role="tab"]');
+
+        function goTo(name, push) {
+            var target = document.getElementById('panel-' + name);
+
+            if (!target) {
+                return;
+            }
+
+            tabs.forEach(function (tab) {
+                var active = tab.getAttribute('data-panel') === name;
+
+                tab.setAttribute('aria-selected', String(active));
+                document.getElementById('panel-' + tab.getAttribute('data-panel')).hidden = !active;
+
+                if (active && tab.scrollIntoView) {
+                    tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }
+            });
+
+            all('[data-nav]').forEach(function (link) {
+                link.classList.toggle('is-active', (link.getAttribute('data-nav') === 'admin') === (name === 'admin'));
+            });
+
+            if (push !== false && window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', '#' + name);
+            }
+
+            window.scrollTo(0, 0);
+            renderAll(null);
+        }
+
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                goTo(tab.getAttribute('data-panel'));
+            });
+        });
+
+        // Permet a js/scrutins.js d'enchainer les ecrans (adresse -> bulletin).
+        window.PreviewNav = goTo;
+
+        // Dans l'aperçu, les boutons mènent à l'écran suivant du parcours.
+        document.addEventListener('click', function (event) {
+            var trigger = event.target.closest('[data-goto]');
+
+            if (trigger) {
+                event.preventDefault();
+                goTo(trigger.getAttribute('data-goto'));
+
+                return;
+            }
+
+            var copy = event.target.closest('[data-copy]');
+
+            if (copy) {
+                var label = copy.textContent;
+                var done = function () {
+                    copy.textContent = copy.getAttribute('data-copied') || 'Copié';
+                    window.setTimeout(function () { copy.textContent = label; }, 1800);
+                };
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(copy.getAttribute('data-copy')).then(done, done);
+                } else {
+                    done();
+                }
+            }
+        });
+
+        /* ------------------------------- scrutin de démonstration, animé ---- */
+        var CANDIDATES = [
+            { id: 1, name: 'Aminata Diallo', initials: 'AD', slot: 1 },
+            { id: 2, name: 'Moussa Sow', initials: 'MS', slot: 2 },
+            { id: 3, name: 'Fatou Ndiaye', initials: 'FN', slot: 3 },
+            { id: 4, name: 'Ibrahima Faye', initials: 'IF', slot: 4 }
+        ];
+
+        var EXPECTED = 40;       // inscrits
+        var CLOSE_AT = 36;       // la démonstration clôt le scrutin à 36 bulletins
+        var BUCKET = 3;          // minutes par tranche
+
+        /* Les 27 premiers bulletins, dans un ordre fixe (-1 = vote blanc), et
+           leur répartition par tranche de 3 minutes à partir de 14:05 :
+           l'aperçu démarre toujours sur le même état, 9 / 7 / 6 / 3 voix. */
+        var SEED_ORDER = [0, 1, 0, 2, 1, 0, 3, 2, 0, 1, -1, 2, 0, 1, 3, 0, 2, 1, 0, 2, -1, 1, 0, 3, 2, 1, 0];
+        var SEED_BUCKETS = [1, 2, 3, 4, 3, 2, 3, 2, 2, 1, 2, 1, 1];
+
+        var state;
+
+        function clock(minutes) {
+            return ('0' + (Math.floor(minutes / 60) % 24)).slice(-2) + ':' + ('0' + (minutes % 60)).slice(-2);
+        }
+
+        function seed() {
+            state = {
+                votes: CANDIDATES.map(function () { return 0; }),
+                abstentions: 0,
+                ballots: 0,
+                minutes: 14 * 60 + 2,
+                labels: [],
+                history: [],
+                inBucket: 0,
+                closed: false
+            };
+
+            // Point de départ à zéro, puis une ligne par tranche.
+            state.labels.push(clock(state.minutes));
+            state.history.push(state.votes.slice());
+
+            var cursor = 0;
+
+            SEED_BUCKETS.forEach(function (size) {
+                for (var i = 0; i < size; i++) {
+                    cast(SEED_ORDER[cursor++]);
+                }
+
+                closeBucket();
+            });
+
+            // Le premier bulletin en direct ouvrira une nouvelle tranche.
+            state.inBucket = 3;
+        }
+
+        function cast(choice) {
+            state.ballots += 1;
+
+            if (choice < 0) {
+                state.abstentions += 1;
+            } else {
+                state.votes[choice] += 1;
+            }
+        }
+
+        function closeBucket() {
+            state.minutes += BUCKET;
+            state.labels.push(clock(state.minutes));
+            state.history.push(state.votes.slice());
+            state.inBucket = 0;
+        }
+
+        function timeline() {
+            var last = state.history[state.history.length - 1];
+
+            return {
+                has_data: true,
+                labels: state.labels,
+                folded: 0,
+                max: Math.max.apply(null, last),
+                series: CANDIDATES.map(function (candidate, index) {
+                    return {
+                        id: candidate.id,
+                        name: candidate.name,
+                        slot: candidate.slot,
+                        points: state.history.map(function (row) { return row[index]; })
+                    };
+                })
+            };
+        }
+
+        /* ------------------------------------------ lignes du classement ---- */
+        var containers = all('[data-demo-results]');
+
+        containers.forEach(function (container) {
+            CANDIDATES.forEach(function (candidate) {
+                var row = document.createElement('div');
+
+                row.className = 'result';
+                row.setAttribute('data-row', String(candidate.id));
+                row.innerHTML =
+                    '<span class="result-rank"></span>' +
+                    '<span class="avatar-initials avatar-sm" aria-hidden="true"></span>' +
+                    '<div class="result-body">' +
+                    '<div class="result-top">' +
+                    '<span class="result-name"><i class="result-key"></i><span data-name></span></span>' +
+                    '<span class="result-numbers"><span class="result-votes"></span> voix <span class="result-pct"></span></span>' +
+                    '</div>' +
+                    '<div class="track"><span class="track-fill"></span></div>' +
+                    '</div>';
+
+                row.querySelector('.avatar-initials').textContent = candidate.initials;
+                row.querySelector('[data-name]').textContent = candidate.name;
+                container.appendChild(row);
+                row.querySelector('.result-key').style.background =
+                    window.VoteChart.colorOf(container, candidate.slot);
+            });
+        });
+
+        var live = window.VoteLive;
+
+        function paintRanking(bumpedId) {
+            var total = state.votes.reduce(function (sum, value) { return sum + value; }, 0);
+            var sorted = CANDIDATES.map(function (candidate, index) {
+                return { id: candidate.id, votes: state.votes[index] };
+            }).sort(function (a, b) { return b.votes - a.votes; });
+            var best = sorted[0].votes;
+
+            containers.forEach(function (container) {
+                container.classList.toggle('is-closed', state.closed);
+
+                // Les lignes glissent vers leur nouveau rang (js/live.js).
+                live.reorder(container, function () {
+                    sorted.forEach(function (entry, index) {
+                        var row = container.querySelector('[data-row="' + entry.id + '"]');
+                        var votes = row.querySelector('.result-votes');
+
+                        row.style.order = String(index);
+                        row.classList.toggle('is-leader', entry.votes === best && best > 0);
+                        row.querySelector('.result-rank').textContent = index + 1;
+                        row.querySelector('.result-pct').textContent = pct(total ? entry.votes / total : 0);
+                        row.querySelector('.track-fill').style.width = (best ? entry.votes * 100 / best : 0) + '%';
+
+                        // Le compteur défile ; une pastille « +1 » s'envole
+                        // au-dessus du candidat qui vient de recevoir une voix.
+                        live.text(votes, entry.votes);
+
+                        if (entry.id === bumpedId) {
+                            live.plus(votes, '+1');
+                        }
+                    });
+                });
+            });
+
+            // Phrase de synthèse : ce que dit le classement, en une ligne.
+            var leaders = sorted.filter(function (entry) { return entry.votes === best; });
+            var nameOf = function (entry) {
+                return CANDIDATES.filter(function (c) { return c.id === entry.id; })[0].name;
+            };
+            var headline;
+
+            if (!best) {
+                headline = 'En attente des premiers bulletins.';
+            } else if (leaders.length === 2) {
+                headline = 'Égalité en tête entre ' + nameOf(leaders[0]) + ' et ' + nameOf(leaders[1]) + '.';
+            } else if (leaders.length > 2) {
+                headline = 'Égalité en tête entre ' + leaders.length + ' candidats.';
+            } else {
+                headline = nameOf(sorted[0]) + (state.closed ? ' est élu(e) avec ' : ' mène avec ')
+                    + (best - sorted[1].votes) + ' voix d\'avance.';
+            }
+
+            all('[data-demo-headline]').forEach(function (node) {
+                live.text(node, headline);
+            });
+
+            // Mini-classement de la page d'accueil : les trois premiers.
+            all('[data-demo-mini]').forEach(function (mini) {
+                all('.float-row', mini).forEach(function (line, index) {
+                    var entry = sorted[index];
+                    var candidate = CANDIDATES.filter(function (c) { return c.id === entry.id; })[0];
+
+                    line.querySelector('.float-name').textContent = candidate.name.split(' ')[0];
+                    live.text(line.querySelector('.float-value'), entry.votes);
+                    line.querySelector('.track-fill').style.width = (best ? entry.votes * 100 / best : 0) + '%';
+                });
+            });
+
+            return total;
+        }
+
+        function paintStats(total) {
+            var stats = {
+                ballots: state.ballots,
+                votes: total,
+                abstentions: state.abstentions,
+                remaining: Math.max(0, EXPECTED - state.ballots),
+                turnout: pct(state.ballots / EXPECTED),
+                blankShare: pct(state.ballots ? state.abstentions / state.ballots : 0)
+            };
+
+            Object.keys(stats).forEach(function (key) {
+                all('[data-demo-stat="' + key + '"]').forEach(function (node) {
+                    live.text(node, stats[key]);
+                });
+            });
+
+            all('[data-demo-meter]').forEach(function (node) {
+                node.style.width = (state.ballots * 100 / EXPECTED) + '%';
+            });
+
+            all('[data-demo-status]').forEach(function (node) {
+                node.textContent = state.closed ? 'Clos' : 'Ouvert';
+                node.classList.toggle('badge-open', !state.closed);
+                node.classList.toggle('badge-closed', state.closed);
+            });
+
+            all('.live-dot').forEach(function (dot) {
+                dot.classList.toggle('is-off', state.closed);
+            });
+
+            var now = state.labels[state.labels.length - 1];
+
+            all('[data-demo-live]').forEach(function (node) {
+                live.text(node, state.closed
+                    ? 'Scrutin clos à ' + now + ', résultats définitifs'
+                    : (state.live ? 'Dernier bulletin reçu à ' + now : 'Mise à jour automatique toutes les 2 secondes'));
+            });
+
+            all('[data-demo-live-short]').forEach(function (node) {
+                node.textContent = state.closed ? 'Résultats définitifs' : 'Résultats en direct';
+            });
+        }
+
+        function paintCharts() {
+            var chart = window.VoteChart;
+
+            if (!chart) {
+                return;
+            }
+
+            var data = timeline();
+
+            all('[data-demo-chart]').forEach(function (node) { chart.render(node, data); });
+            all('[data-demo-pace]').forEach(function (node) { chart.pace(node, data); });
+            all('[data-demo-share]').forEach(function (node) { chart.share(node, data); });
+            all('[data-demo-table]').forEach(function (node) { chart.table(node, data); });
+            all('[data-demo-ring]').forEach(function (node) {
+                chart.ring(node, { value: state.ballots, total: EXPECTED });
+            });
+        }
+
+        function renderAll(bumpedId) {
+            if (!state) {
+                return;
+            }
+
+            paintStats(paintRanking(bumpedId));
+            paintCharts();
+        }
+
+        /* Annonce automatique du vainqueur, comme à la clôture réelle. */
+        function revealWinner() {
+            var total = state.votes.reduce(function (sum, value) { return sum + value; }, 0);
+            var topIndex = state.votes.indexOf(Math.max.apply(null, state.votes));
+            var top = CANDIDATES[topIndex];
+
+            all('[data-demo-winner]').forEach(function (slot) {
+                slot.textContent = '';
+
+                var box = document.createElement('div');
+                var photo = document.createElement('span');
+                var body = document.createElement('div');
+                var parts = [
+                    ['winner-label', 'Élu(e), Focal Point Academic'],
+                    ['winner-name', top.name],
+                    ['winner-score', state.votes[topIndex] + ' voix, soit '
+                        + pct(total ? state.votes[topIndex] / total : 0) + ' des suffrages exprimés']
+                ];
+
+                box.className = 'winner';
+                photo.className = 'avatar-initials winner-photo';
+                photo.setAttribute('aria-hidden', 'true');
+                photo.textContent = top.initials;
+                body.className = 'winner-body';
+
+                parts.forEach(function (part) {
+                    var line = document.createElement('div');
+
+                    line.className = part[0];
+                    line.textContent = part[1];
+                    body.appendChild(line);
+                });
+
+                box.appendChild(photo);
+                box.appendChild(body);
+                slot.appendChild(box);
+
+                window.setTimeout(function () { box.classList.add('is-revealed'); }, 40);
+            });
+        }
+
+        function tick() {
+            if (document.hidden || state.closed) {
+                return;
+            }
+
+            var best = Math.max.apply(null, state.votes);
+            var tied = state.votes.filter(function (value) { return value === best; }).length > 1;
+
+            // La démonstration ne clôt pas sur une égalité : elle attend le bulletin suivant.
+            if (state.ballots >= CLOSE_AT && !tied) {
+                state.closed = true;
+                revealWinner();
+                renderAll(null);
+
+                return;
+            }
+
+            // Une nouvelle tranche de 3 minutes s'ouvre tous les trois bulletins.
+            if (state.inBucket >= 3) {
+                closeBucket();
+            }
+
+            var bumped = null;
+
+            if (!tied && Math.random() < 0.08) {
+                cast(-1);
+            } else {
+                var weights = [1.1, 1.1, 1, 0.6];
+                var draw = Math.random() * 3.8;
+                var pick = 0;
+
+                while (draw > weights[pick]) {
+                    draw -= weights[pick];
+                    pick += 1;
+                }
+
+                cast(pick);
+                bumped = CANDIDATES[pick].id;
+            }
+
+            state.inBucket += 1;
+            state.live = true;
+            state.history[state.history.length - 1] = state.votes.slice();
+            renderAll(bumped);
+        }
+
+        all('[data-demo-replay]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                all('[data-demo-winner]').forEach(function (slot) { slot.textContent = ''; });
+                seed();
+                renderAll(null);
+            });
+        });
+
+        /* Plein écran pour la vue vidéoprojecteur (aperçu uniquement). */
+        all('[data-fullscreen]').forEach(function (button) {
+            var target = document.querySelector('.screen-demo');
+
+            if (!target || !target.requestFullscreen) {
+                button.hidden = true;
+
+                return;
+            }
+
+            button.addEventListener('click', function () {
+                target.requestFullscreen().catch(function () {});
+            });
+        });
+
+        seed();
+
+        var start = (window.location.hash || '').replace('#', '');
+
+        if (start && document.getElementById('panel-' + start)) {
+            goTo(start, false);
+        } else {
+            renderAll(null);
+        }
+
+        window.setInterval(tick, 2000);
+    })();
+</script>
+</body>
+</html>
