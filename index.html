@@ -107,6 +107,64 @@
 </head>
 <body>
 
+<!-- Écran d'ouverture : crédits de la plateforme -->
+<div class="splash" id="splash" role="dialog" aria-modal="true" aria-labelledby="splash-title">
+    <div class="splash-card">
+        <img class="splash-logo" src="img/aims-senegal-logo.jpg" alt="AIMS Sénégal">
+        <p class="splash-eyebrow">AIMS Sénégal</p>
+        <h1 class="splash-title" id="splash-title">Plateforme de vote<br>des délégués et focal points</h1>
+        <p class="splash-credit">Cette plateforme a été développée par</p>
+        <ul class="splash-names">
+            <li>ANON N'DA GUY SIMON STEPHANE</li>
+            <li class="splash-and">et</li>
+            <li>JOEL J. BOCOVO</li>
+        </ul>
+        <button class="btn btn-lg" type="button" data-splash-close>Accéder à la plateforme</button>
+        <p class="splash-hint">Ouverture automatique dans quelques secondes</p>
+    </div>
+</div>
+<script>
+    (function () {
+        var splash = document.getElementById('splash');
+        var KEY = 'aims.vote.splash';
+        var seen = false;
+
+        try { seen = window.sessionStorage.getItem(KEY) === '1'; } catch (e) {}
+
+        if (seen) {
+            splash.parentNode.removeChild(splash);
+            return;
+        }
+
+        document.documentElement.style.overflow = 'hidden';
+
+        function close() {
+            if (!splash.parentNode) {
+                return;
+            }
+            try { window.sessionStorage.setItem(KEY, '1'); } catch (e) {}
+            document.documentElement.style.overflow = '';
+            splash.classList.add('is-leaving');
+            window.setTimeout(function () {
+                if (splash.parentNode) {
+                    splash.parentNode.removeChild(splash);
+                }
+            }, 400);
+        }
+
+        splash.querySelector('[data-splash-close]').addEventListener('click', close);
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' || event.key === 'Enter') {
+                close();
+            }
+        });
+        window.setTimeout(function () {
+            splash.querySelector('[data-splash-close]').focus();
+        }, 50);
+        window.setTimeout(close, 6000);
+    })();
+</script>
+
 <header class="topbar">
     <div class="topbar-inner">
         <a class="brand" href="#accueil" data-goto="accueil">

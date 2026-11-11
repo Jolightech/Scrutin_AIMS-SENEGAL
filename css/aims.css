@@ -3006,3 +3006,112 @@ img.avatar.avatar-sm {
     height: 40px;
     border-radius: 10px;
 }
+
+/* ------------------------------ [nouveau] Écran d'ouverture (crédits)
+   Affiché à l'ouverture de la plateforme, une fois par onglet. */
+
+.splash {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    background:
+        radial-gradient(120% 80% at 50% 0%, var(--brand-700) 0%, var(--brand-900) 60%, var(--night) 100%);
+    color: #fff;
+    text-align: center;
+    transition: opacity var(--reveal) var(--ease), visibility var(--reveal);
+}
+
+.splash.is-leaving {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.splash-card {
+    max-width: 560px;
+    animation: splash-in 700ms var(--ease) both;
+}
+
+.splash-logo {
+    display: block;
+    width: min(260px, 70vw);
+    height: auto;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    padding: .6rem .9rem;
+    margin: 0 auto 1.4rem;
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, .08);
+}
+
+.splash-eyebrow {
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-soft);
+    margin: 0 0 .6rem;
+}
+
+.splash-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 1.2rem + 2vw, 2.5rem);
+    line-height: 1.15;
+    margin: 0 0 1.6rem;
+    color: #fff;
+}
+
+.splash-credit {
+    margin: 0 0 .5rem;
+    color: rgba(255, 255, 255, .72);
+    font-size: 1rem;
+}
+
+.splash-names {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    display: grid;
+    gap: .35rem;
+}
+
+.splash-names li {
+    font-size: clamp(1.1rem, .95rem + .8vw, 1.45rem);
+    font-weight: 700;
+    letter-spacing: .03em;
+}
+
+.splash-names .splash-and {
+    font-size: .95rem;
+    font-weight: 400;
+    color: var(--accent-soft);
+}
+
+.splash .btn {
+    background: var(--accent);
+    color: var(--brand-900);
+}
+
+.splash .btn:hover {
+    background: var(--accent-soft);
+}
+
+.splash-hint {
+    margin: 1rem 0 0;
+    font-size: .85rem;
+    color: rgba(255, 255, 255, .5);
+}
+
+@keyframes splash-in {
+    from { opacity: 0; transform: translateY(14px) scale(.98); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash,
+    .splash-card {
+        animation: none;
+        transition: none;
+    }
+}
