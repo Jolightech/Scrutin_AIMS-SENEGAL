@@ -179,6 +179,14 @@ function start() {
         });
 
         lastConfigJson = JSON.stringify(configOf(Scr.data()));
+
+        // Ancienne configuration sans liste d'identifiants (lue par les règles) :
+        // l'administration la complète automatiquement.
+        if (admin && remote.config && TYPES.some(function (type) {
+            return !remote.config[type] || !Array.isArray(remote.config[type].ids);
+        })) {
+            setDoc(doc(db, 'config', 'scrutins'), configOf(Scr.data())).catch(report);
+        }
     }
 
     onSnapshot(doc(db, 'config', 'scrutins'), function (snap) {
@@ -217,6 +225,27 @@ function start() {
     onAuthStateChanged(auth, async function (next) {
         user = next;
         admin = false;
+
+        if (user) {
+            // Adresse confirmée depuis un autre onglet ou un autre appareil :
+            // on recharge le compte et on renouvelle le jeton.
+            try {
+                if (!user.emailVerified) {
+                    await user.reload();
+                    user = auth.currentUser;
+                }
+
+                if (user && user.emailVerified) {
+                    const token = await user.getIdTokenResult();
+
+                    if (!token.claims.email_verified) {
+                        await user.getIdToken(true);
+                    }
+                }
+            } catch (error) {
+                report(error);
+            }
+        }
 
         if (user) {
             try {
@@ -332,6 +361,8 @@ function start() {
                 status: s.status,
                 max: s.max || 1,
                 expected: parseInt(s.expected, 10) || 40,
+                // Liste des identifiants, lue par les règles de sécurité.
+                ids: s.candidates.map(function (c) { return c.id; }),
                 candidates: s.candidates.map(function (c) {
                     const copy = { id: c.id, name: c.name, slogan: c.slogan || '', prog: c.prog || '' };
 
@@ -396,17 +427,40 @@ function start() {
                         at: serverTimestamp()
                     });
                     tx.set(tallyRef, { n: n + 1, last: ref.id });
-                }).catch(function (error) {
+                }).catch(async function (error) {
                     report(error);
-                    window.alert(
-                        (window.VoteI18n && window.VoteI18n.lang() === 'en')
-                            ? 'Your vote could not be saved: this address has already voted in this election, or the election is closed.'
-                            : 'Votre vote n\'a pas pu être enregistré : cette adresse a déjà voté à ce scrutin, ou le scrutin est clos.'
-                    );
+
+                    // A-t-il vraiment déjà voté (autre appareil) ? Sinon, on
+                    // annule le vote local pour qu'il puisse réessayer.
+                    let already = false;
+
+                    try {
+                        already = (await getDoc(voterRef)).exists();
+                    } catch (e) {
+                        already = false;
+                    }
+
+                    const en = window.VoteI18n && window.VoteI18n.lang() === 'en';
+
+                    window.alert(already
+                        ? (en ? 'You have already voted in this election.' : 'Vous avez déjà voté à ce scrutin.')
+                        : (en ? 'Your vote could not be saved (connection lost or election closed). Please try again.'
+                              : 'Votre vote n\'a pas pu être enregistré (connexion perdue ou scrutin clos). Réessayez.'));
+
                     Scr.applyRemote(function (d) {
-                        if (d.voters[email] && d.voters[email].scrutins[type]) {
-                            d.voters[email].scrutins[type].receipt = '—';
+                        const record = d.voters[email];
+
+                        if (!record) {
+                            return;
                         }
+
+                        if (already) {
+                            record.scrutins[type] = { receipt: '—', at: '' };
+                        } else {
+                            delete record.scrutins[type];
+                        }
+
+                        d.scrutins[type].ballots = d.scrutins[type].ballots.filter(function (b) { return b._id !== ref.id; });
                     });
                     apply();
                 });

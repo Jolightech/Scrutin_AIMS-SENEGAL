@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Vote AIMS — aperçu de l'interface</title>
-    <link rel="stylesheet" href="css/aims.css?v=20261111j">
+    <title>Vote AIMS Sénégal — élection des focal points</title>
+    <link rel="stylesheet" href="css/aims.css?v=20261111k">
     <style>
         /* Habillage propre à l'aperçu : n'existe pas dans le projet Laravel. */
         .preview-bar {
@@ -221,15 +221,13 @@
                 <div>
                     <h1 class="hero-title">Élection des focal points, promotion 2026</h1>
                     <p class="hero-lead">
-                        Saisissez le code du scrutin, vérifiez votre adresse institutionnelle, puis votez pour chacun
-                        des quatre scrutins : Academic, Health, Online et Logistics. Le vote est secret et les résultats sont publiés en direct.
+                        Confirmez votre adresse @aims-senegal.org, puis votez pour chacun des quatre scrutins :
+                        Academic, Health, Online et Logistics. Le vote est secret et les résultats sont publiés en direct.
                     </p>
 
-                    <form class="hero-form" onsubmit="return false">
-                        <label class="label" for="hero-code">Code du scrutin</label>
-                        <input class="input code-input" id="hero-code" type="text" value="AIMS26" readonly>
-                        <button class="btn btn-lg" type="submit" data-goto="email">Voter</button>
-                    </form>
+                    <div class="hero-cta">
+                        <a class="btn btn-lg" href="#email" data-goto="email">Commencer à voter</a>
+                    </div>
 
                     <ul class="hero-bullets">
                         <li>Choix secret</li>
@@ -260,12 +258,12 @@
             <div class="section-head">
                 <div>
                     <h2>Déroulement du vote</h2>
-                    <p>Quatre étapes, sans inscription ni mot de passe.</p>
+                    <p>Quatre étapes, quelques minutes.</p>
                 </div>
             </div>
             <div class="steps">
-                <div class="step"><div class="step-num">1</div><h3>Saisir le code</h3><p>Le code de six caractères est projeté en salle ou communiqué par l'administration.</p></div>
-                <div class="step"><div class="step-num">2</div><h3>Vérifier son adresse</h3><p>Seule une adresse en @aims-senegal.org donne accès aux bulletins ; toute autre adresse est refusée.</p></div>
+                <div class="step"><div class="step-num">1</div><h3>Ouvrir le lien</h3><p>Le lien de vote est envoyé par l'administration ou affiché en salle avec un QR code.</p></div>
+                <div class="step"><div class="step-num">2</div><h3>Confirmer son adresse</h3><p>Seule une adresse @aims-senegal.org confirmée par le lien reçu par email donne accès aux bulletins.</p></div>
                 <div class="step"><div class="step-num">3</div><h3>Voter pour chaque scrutin</h3><p>Un bulletin par scrutin : Academic, Health, Online et Logistics. Le vote blanc est possible.</p></div>
                 <div class="step"><div class="step-num">4</div><h3>Consulter les résultats</h3><p>Les résultats sont mis à jour à chaque bulletin. À la clôture, le candidat élu est proclamé.</p></div>
             </div>
@@ -300,7 +298,6 @@
     <section class="panel" id="panel-email" hidden>
         <div class="narrow">
             <ol class="stepper" aria-label="Étapes du vote">
-                <li class="is-done">Code</li>
                 <li class="is-current" aria-current="step">Adresse</li>
                 <li>Bulletin</li>
                 <li>Reçu</li>
@@ -427,17 +424,6 @@
             </details>
         </div>
 
-        <p class="preview-caption">Exemple : variante « résultats sous scellés »</p>
-        <div class="card">
-            <p class="muted" style="font-size:.98rem">
-                Réglage par scrutin, pour ne pas influencer les votants : seule la
-                participation est diffusée pendant le vote.
-            </p>
-            <div class="masked">
-                <h3>Résultats sous scellés</h3>
-                <p>Le détail par candidat sera publié à la clôture du scrutin.</p>
-            </div>
-        </div>
     </section>
 
     <!-- ============================================== 5. Vidéoprojecteur -->
@@ -576,14 +562,14 @@
     Le choix de chaque votant reste secret : les bulletins ne portent aucune adresse email.
 </footer>
 
-<script src="js/ballot.js?v=20261111j"></script>
-<script src="js/scrutins.js?v=20261111j"></script>
-<script src="js/live.js?v=20261111j"></script>
-<script src="js/chart.js?v=20261111j"></script>
-<script src="js/qr.js?v=20261111j"></script>
-<script src="js/i18n.js?v=20261111j"></script>
-<script src="js/firebase-config.js?v=20261111j"></script>
-<script type="module" src="js/cloud.js?v=20261111j"></script>
+<script src="js/firebase-config.js?v=20261111k"></script>
+<script src="js/ballot.js?v=20261111k"></script>
+<script src="js/scrutins.js?v=20261111k"></script>
+<script src="js/live.js?v=20261111k"></script>
+<script src="js/chart.js?v=20261111k"></script>
+<script src="js/qr.js?v=20261111k"></script>
+<script src="js/i18n.js?v=20261111k"></script>
+<script type="module" src="js/cloud.js?v=20261111k"></script>
 <script>
     (function () {
         'use strict';
@@ -775,7 +761,8 @@
                     abstentions += 1;
                 }
 
-                choices.forEach(function (id) {
+                // Un candidat compte une seule fois par bulletin, au plus « max » choix.
+                choices.filter(function (id, i) { return choices.indexOf(id) === i; }).forEach(function (id) {
                     if (id in votes) {
                         votes[id] += 1;
                     }
@@ -830,7 +817,9 @@
                 edge += step;
 
                 while (cursor < st.ballots.length && times[cursor] < edge) {
-                    (st.ballots[cursor].choices || []).forEach(function (id) {
+                    var picks = st.ballots[cursor].choices || [];
+
+                    picks.filter(function (id, i) { return picks.indexOf(id) === i; }).forEach(function (id) {
                         if (id in running) {
                             running[id] += 1;
                         }

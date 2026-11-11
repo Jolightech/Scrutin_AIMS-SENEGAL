@@ -300,6 +300,12 @@
         return !!(window.VoteCloud && window.VoteCloud.active());
     }
 
+    // Plateforme configurée en ligne mais serveur pas (encore) joint :
+    // aucun vote ne doit partir dans le seul navigateur.
+    function waitingCloud() {
+        return !!window.FIREBASE_CONFIG && !online();
+    }
+
     var data = load();
 
     function scrutin(key) {
@@ -388,6 +394,13 @@
 
         if (online()) {
             renderEmailOnline(root);
+
+            return;
+        }
+
+        if (waitingCloud()) {
+            root.innerHTML = '<div class="card"><h2>Connexion au serveur de vote…</h2>'
+                + '<p class="muted">Si ce message reste affiché, vérifiez votre connexion internet puis rechargez la page.</p></div>';
 
             return;
         }
@@ -577,7 +590,7 @@
 
         if (!email) {
             root.innerHTML = '<ol class="stepper" aria-label="Étapes du vote">'
-                + '<li class="is-done">Code</li><li class="is-current" aria-current="step">Adresse</li>'
+                + '<li class="is-current" aria-current="step">Adresse</li>'
                 + '<li>Bulletin</li><li>Reçu</li></ol>'
                 + '<div class="card center" style="max-width:660px; margin-inline:auto">'
                 + '<h2 style="font-size:1.45rem">Vérifiez d\'abord votre adresse</h2>'
@@ -613,7 +626,7 @@
             + '</div>';
 
         html += '<ol class="stepper" aria-label="Étapes du vote">'
-            + '<li class="is-done">Code</li><li class="is-done">Adresse</li>'
+            + '<li class="is-done">Adresse</li>'
             + '<li class="is-current" aria-current="step">Bulletin</li><li>Reçu</li></ol>';
 
         html += '<div class="page-head">'
@@ -707,7 +720,7 @@
 
         var record = voterRecord(true);
 
-        if (!s || !record || s.status !== 'open' || hasVoted(key)) {
+        if (!s || !record || s.status !== 'open' || hasVoted(key) || waitingCloud()) {
             return;
         }
 
@@ -900,7 +913,9 @@
         // Securite et reinitialisation.
         html += '<div class="card">'
             + '<div class="card-head"><div><h2>Sécurité et réinitialisation</h2>'
-            + '<p class="card-sub">Le code secret protège cette page ; la réinitialisation efface tout le tableau de bord.</p></div>'
+            + '<p class="card-sub">' + (online()
+                ? 'Seuls les administrateurs connectés avec Google accèdent à cette page ; la réinitialisation efface tout le tableau de bord.'
+                : 'Le code secret protège cette page ; la réinitialisation efface tout le tableau de bord.') + '</p></div>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-logout>Se déconnecter</button></div>'
             + (online() ? renderAdmins() : ''
                 + '<form data-admin-code-form onsubmit="return false">'
@@ -919,11 +934,11 @@
             + '<button class="btn btn-danger" type="button" data-admin-reset-results>Réinitialiser les résultats : ' + esc(type.short) + '</button>'
             + '<button class="btn btn-danger" type="button" data-admin-reset-all>Réinitialiser tout le tableau de bord</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset-votes>Effacer uniquement les bulletins et les votants</button>'
-            + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset>Recharger les données de démonstration</button>'
+            + (online() ? '' : '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset>Recharger les données de démonstration</button>')
             + '</div>'
             + '<p class="small muted" style="margin:.8rem 0 0">« Effacer tous les indicateurs » remet tous les compteurs à zéro : bulletins, voix, votes blancs, participation, graphiques et élu(e) dans les onglets Accueil, Résultats, Score live et Administration, pour les quatre scrutins. Les candidats sont conservés.</p>'
             + '<p class="small muted" style="margin:.4rem 0 0">« Réinitialiser les résultats » efface les bulletins du seul scrutin choisi (' + esc(type.label) + ') : ses votants pourront revoter à ce scrutin. Les candidats sont conservés.</p>'
-            + '<p class="small muted" style="margin:.4rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin. Le code secret est conservé.</p>'
+            + '<p class="small muted" style="margin:.4rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin.' + (online() ? ' Les administrateurs sont conservés.' : ' Le code secret est conservé.') + '</p>'
             + '</div>';
 
         root.innerHTML = html;

@@ -22,6 +22,17 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/config/scrutins).data[type].status == 'open';
     }
 
+    // Choix valides : candidats du scrutin, sans doublon, au plus « max »,
+    // et aucun candidat si c'est un vote blanc.
+    function validChoices(type, choices, blank) {
+      let cfg = get(/databases/$(database)/documents/config/scrutins).data[type];
+      return choices is list
+        && choices.size() <= cfg.max
+        && choices.toSet().size() == choices.size()
+        && choices.hasOnly(cfg.ids)
+        && (blank ? choices.size() == 0 : choices.size() > 0);
+    }
+
     // Seules les adresses institutionnelles ...@aims-senegal.org (et sous-domaines).
     function institutional(email) {
       return email is string
@@ -112,10 +123,8 @@ service cloud.firestore {
         && validType(request.resource.data.type)
         && scrutinOpen(request.resource.data.type)
         && request.resource.data.keys().hasOnly(['type', 'choices', 'blank', 'receipt', 'at'])
-        && request.resource.data.choices is list
-        && request.resource.data.choices.size() <= 3
         && request.resource.data.blank is bool
-        && (request.resource.data.blank || request.resource.data.choices.size() > 0)
+        && validChoices(request.resource.data.type, request.resource.data.choices, request.resource.data.blank)
         && request.resource.data.receipt is string
         && request.resource.data.receipt.size() < 20
         && request.resource.data.at == request.time

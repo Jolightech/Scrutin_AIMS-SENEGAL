@@ -4658,3 +4658,7 @@ body {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+.hero-cta {
+    margin: 1.4rem 0 0;
+}
