@@ -65,11 +65,51 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Votant : compte connecté dont l'adresse @aims-senegal.org est confirmée
+    // (lien reçu par email, ou compte Google à cette adresse).
+    function verifiedVoter() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && institutional(request.auth.token.email);
+    }
+
+    function voterPath(type) {
+      return /databases/$(database)/documents/voters/$(request.auth.token.email + '__' + type);
+    }
+
+    function tallyPath(type) {
+      return /databases/$(database)/documents/tallies/$(type);
+    }
+
+    function previousCount(type) {
+      return exists(tallyPath(type)) ? get(tallyPath(type)).data.n : 0;
+    }
+
+    // Un vote = un bulletin + l'émargement de l'adresse + le compteur du
+    // scrutin, écrits ensemble. Le compteur augmente d'exactement 1 et désigne
+    // le bulletin : impossible de glisser plusieurs bulletins à la fois, ou un
+    // bulletin sans émargement (donc deux fois avec la même adresse).
+    match /tallies/{type} {
+      allow read: if true;
+      allow create, update: if verifiedVoter()
+        && validType(type)
+        && scrutinOpen(type)
+        && request.resource.data.keys().hasOnly(['n', 'last'])
+        && request.resource.data.n == previousCount(type) + 1
+        && request.resource.data.last is string
+        && !exists(/databases/$(database)/documents/ballots/$(request.resource.data.last))
+        && existsAfter(/databases/$(database)/documents/ballots/$(request.resource.data.last))
+        && !exists(voterPath(type))
+        && existsAfter(voterPath(type));
+      allow delete: if false;
+    }
+
     // Bulletins : anonymes (aucune adresse), lecture publique pour les
     // résultats en direct, jamais modifiés ; effacés par l'administration.
     match /ballots/{id} {
       allow read: if true;
-      allow create: if validType(request.resource.data.type)
+      allow create: if verifiedVoter()
+        && validType(request.resource.data.type)
         && scrutinOpen(request.resource.data.type)
         && request.resource.data.keys().hasOnly(['type', 'choices', 'blank', 'receipt', 'at'])
         && request.resource.data.choices is list
@@ -78,23 +118,28 @@ service cloud.firestore {
         && (request.resource.data.blank || request.resource.data.choices.size() > 0)
         && request.resource.data.receipt is string
         && request.resource.data.receipt.size() < 20
-        && request.resource.data.at == request.time;
+        && request.resource.data.at == request.time
+        && getAfter(tallyPath(request.resource.data.type)).data.last == id
+        && getAfter(tallyPath(request.resource.data.type)).data.n == previousCount(request.resource.data.type) + 1;
       allow update: if false;
       allow delete: if isAdmin();
     }
 
-    // Liste d'émargement : une entrée par adresse et par scrutin.
-    // Création seulement : un second vote au même scrutin est refusé.
-    // La liste complète n'est lisible que par l'administration.
+    // Liste d'émargement : une entrée par adresse et par scrutin, sans date
+    // (pour ne pas pouvoir la rapprocher d'un bulletin). Création seulement :
+    // un second vote au même scrutin est refusé. Chacun ne lit que la sienne.
     match /voters/{key} {
-      allow get: if true;
+      allow get: if isAdmin()
+        || (request.auth != null && key.split('__')[0] == request.auth.token.email);
       allow list: if isAdmin();
-      allow create: if validType(request.resource.data.type)
+      allow create: if verifiedVoter()
+        && validType(request.resource.data.type)
         && scrutinOpen(request.resource.data.type)
-        && institutional(request.resource.data.email)
+        && request.resource.data.email == request.auth.token.email
         && key == request.resource.data.email + '__' + request.resource.data.type
-        && request.resource.data.keys().hasOnly(['email', 'type', 'at'])
-        && request.resource.data.at == request.time;
+        && request.resource.data.keys().hasOnly(['email', 'type'])
+        && existsAfter(tallyPath(request.resource.data.type))
+        && getAfter(tallyPath(request.resource.data.type)).data.n == previousCount(request.resource.data.type) + 1;
       allow update: if false;
       allow delete: if isAdmin();
     }

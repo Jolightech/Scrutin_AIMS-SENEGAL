@@ -164,6 +164,11 @@
     }
 
     function voterEmail() {
+        // Mode en ligne : seule une adresse confirmée (compte Firebase) compte.
+        if (window.VoteCloud && window.VoteCloud.active()) {
+            return window.VoteCloud.voterEmail();
+        }
+
         return session(VOTER_SESSION) || null;
     }
 
@@ -381,6 +386,12 @@
             return;
         }
 
+        if (online()) {
+            renderEmailOnline(root);
+
+            return;
+        }
+
         var email = voterEmail();
 
         root.innerHTML = '<div class="card">'
@@ -403,6 +414,88 @@
             + '</form>'
             + (email ? '<p class="small muted" style="margin:.9rem 0 0">Adresse actuellement vérifiée : ' + esc(email) + '.</p>' : '')
             + '</div>';
+    }
+
+    /* Mode en ligne : compte votant avec adresse confirmée par email. */
+    var voterMsg = null;     // { kind: 'error' | 'success', text }
+    var voterBusy = false;
+
+    function renderEmailOnline(root) {
+        var v = window.VoteCloud.voterState();
+        var html = '<div class="card">'
+            + '<h2>Vérifier votre adresse</h2>'
+            + '<p class="muted" style="font-size:.98rem">Seules les adresses institutionnelles se terminant par '
+            + '<strong>@' + esc(EMAIL_DOMAIN) + '</strong> peuvent voter. Votre adresse est confirmée par un lien envoyé par email : '
+            + 'personne ne peut voter à votre place. Votre choix, lui, n\'est jamais relié à votre adresse.</p>';
+
+        if (voterMsg) {
+            html += '<div class="alert alert-' + voterMsg.kind + '">' + esc(voterMsg.text) + '</div>';
+        }
+
+        if (v.state === 'ok') {
+            html += '<p style="margin:0 0 1rem">Adresse confirmée : <strong>' + esc(v.email) + '</strong></p>'
+                + '<a class="btn btn-lg btn-block" href="#bulletin" data-goto="bulletin">Continuer vers les bulletins</a>'
+                + '<button class="btn btn-ghost btn-block" type="button" data-voter-logout style="margin-top:.6rem">Changer de compte</button>';
+        } else if (v.state === 'unverified') {
+            html += '<div class="voter-step">'
+                + '<p><strong>Dernière étape : confirmez votre adresse.</strong></p>'
+                + '<p class="muted">Un email a été envoyé à <strong>' + esc(v.email) + '</strong>. Ouvrez-le et cliquez sur le lien '
+                + '(pensez à regarder dans les courriers indésirables), puis revenez ici.</p>'
+                + '</div>'
+                + '<button class="btn btn-lg btn-block" type="button" data-voter-refresh' + (voterBusy ? ' disabled' : '') + '>J\'ai cliqué sur le lien</button>'
+                + '<div class="row" style="margin-top:.7rem">'
+                + '<button class="btn btn-ghost btn-sm" type="button" data-voter-resend>Renvoyer l\'email</button>'
+                + '<button class="btn btn-ghost btn-sm" type="button" data-voter-logout>Changer de compte</button>'
+                + '</div>';
+        } else if (v.state === 'wrong-domain') {
+            html += '<div class="alert alert-error">Vous êtes connecté avec ' + esc(v.email) + ', qui n\'est pas une adresse @' + esc(EMAIL_DOMAIN) + '.</div>'
+                + '<button class="btn btn-lg btn-block" type="button" data-voter-logout>Se déconnecter</button>';
+        } else {
+            html += '<form data-voter-form onsubmit="return false">'
+                + '<div class="field"><label class="label" for="voter-email">Adresse email institutionnelle</label>'
+                + '<input class="input" id="voter-email" name="email" type="email" autocomplete="email" required placeholder="prenom.nom@aims-senegal.org"></div>'
+                + '<div class="field"><label class="label" for="voter-password">Mot de passe</label>'
+                + '<input class="input" id="voter-password" name="password" type="password" autocomplete="current-password" minlength="6" required>'
+                + '<div class="help">Première fois : choisissez un mot de passe (6 caractères minimum) et cliquez sur « Créer mon compte ».</div></div>'
+                + '<div class="voter-actions">'
+                + '<button class="btn btn-lg" type="submit" data-voter-login' + (voterBusy ? ' disabled' : '') + '>Se connecter</button>'
+                + '<button class="btn btn-ghost btn-lg" type="button" data-voter-register' + (voterBusy ? ' disabled' : '') + '>Créer mon compte</button>'
+                + '</div>'
+                + '<button class="link-button" type="button" data-voter-reset>Mot de passe oublié ?</button>'
+                + '</form>'
+                + '<div class="voter-or"><span>ou</span></div>'
+                + '<button class="btn btn-ghost btn-block" type="button" data-voter-google>Se connecter avec Google (compte @' + esc(EMAIL_DOMAIN) + ')</button>';
+        }
+
+        root.innerHTML = html + '</div>';
+    }
+
+    function voterAction(promise, success) {
+        voterBusy = true;
+        voterMsg = null;
+        renderEmail();
+
+        return Promise.resolve(promise).then(function (result) {
+            voterBusy = false;
+            voterMsg = typeof success === 'function' ? success(result) : success;
+            renderAll();
+
+            return result;
+        }, function (error) {
+            voterBusy = false;
+            voterMsg = { kind: 'error', text: window.VoteCloud.authMessage(error) };
+            renderAll();
+        });
+    }
+
+    function voterFields() {
+        var form = document.querySelector('[data-voter-form]');
+
+        return {
+            form: form,
+            email: form ? String(form.elements.email.value || '').trim().toLowerCase() : '',
+            password: form ? String(form.elements.password.value || '') : ''
+        };
     }
 
     function verifyEmail(form) {
@@ -1252,10 +1345,84 @@
         hit = target.closest('[data-voter-logout]');
         if (hit) {
             session(VOTER_SESSION, null);
+
+            if (online()) {
+                voterMsg = null;
+                window.VoteCloud.signOut().then(function () {
+                    renderAll();
+                    navigate('email');
+                });
+
+                return;
+            }
+
             renderAll();
             navigate('email');
 
             return;
+        }
+
+        // Mode en ligne : comptes des votants.
+        if (online()) {
+            var f;
+
+            if (target.closest('[data-voter-register]')) {
+                f = voterFields();
+
+                if (!emailValid(f.email)) {
+                    voterMsg = { kind: 'error', text: 'Seules les adresses se terminant par @' + EMAIL_DOMAIN + ' peuvent voter.' };
+                    renderEmail();
+                } else if (f.password.length < 6) {
+                    voterMsg = { kind: 'error', text: 'Mot de passe trop court : 6 caractères minimum.' };
+                    renderEmail();
+                } else {
+                    voterAction(window.VoteCloud.registerVoter(f.email, f.password),
+                        { kind: 'success', text: 'Compte créé. Un email de confirmation vient d\'être envoyé.' });
+                }
+
+                return;
+            }
+
+            if (target.closest('[data-voter-google]')) {
+                voterAction(window.VoteCloud.signIn(), null);
+
+                return;
+            }
+
+            if (target.closest('[data-voter-refresh]')) {
+                voterAction(window.VoteCloud.refreshVoter(), function (ok) {
+                    if (ok) {
+                        navigate('bulletin');
+
+                        return null;
+                    }
+
+                    return { kind: 'error', text: 'L\'adresse n\'est pas encore confirmée. Cliquez sur le lien reçu par email, puis réessayez.' };
+                });
+
+                return;
+            }
+
+            if (target.closest('[data-voter-resend]')) {
+                voterAction(window.VoteCloud.resendVerification(),
+                    { kind: 'success', text: 'Email de confirmation renvoyé.' });
+
+                return;
+            }
+
+            if (target.closest('[data-voter-reset]')) {
+                f = voterFields();
+
+                if (!emailValid(f.email)) {
+                    voterMsg = { kind: 'error', text: 'Saisissez d\'abord votre adresse @' + EMAIL_DOMAIN + ', puis cliquez sur « Mot de passe oublié ? ».' };
+                    renderEmail();
+                } else {
+                    voterAction(window.VoteCloud.resetPassword(f.email),
+                        { kind: 'success', text: 'Un email pour choisir un nouveau mot de passe a été envoyé à ' + f.email + '.' });
+                }
+
+                return;
+            }
         }
 
         hit = target.closest('[data-admin-remove]');
@@ -1378,6 +1545,24 @@
     });
 
     document.addEventListener('submit', function (event) {
+        var voterForm = event.target.closest('[data-voter-form]');
+
+        if (voterForm && online()) {
+            event.preventDefault();
+
+            var vf = voterFields();
+
+            voterAction(window.VoteCloud.loginVoter(vf.email, vf.password), function () {
+                if (voterEmail()) {
+                    navigate('bulletin');
+                }
+
+                return null;
+            });
+
+            return;
+        }
+
         var emailForm = event.target.closest('[data-email-form]');
 
         if (emailForm) {

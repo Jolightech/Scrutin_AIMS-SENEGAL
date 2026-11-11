@@ -13,16 +13,23 @@
  *  - voters/{email__type} : liste d'émargement, créée en même temps que le
  *    bulletin ; un second vote au même scrutin est refusé par les règles
  *    de sécurité (création seulement, jamais de modification) ;
+ *  - tallies/{type}  : compteur de bulletins ; chaque vote l'augmente de 1
+ *    et désigne son bulletin, ce qui interdit d'ajouter plusieurs bulletins
+ *    en une seule écriture.
+ * Pour voter, il faut un compte dont l'adresse @aims-senegal.org a été
+ * confirmée (lien reçu par email) ou un compte Google à cette adresse.
  *  - admins/{uid}    : comptes Google autorisés à administrer.
  * Les règles de sécurité sont dans firestore.rules.
  */
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
 import {
     getFirestore, doc, collection, onSnapshot, setDoc, getDoc, writeBatch,
-    serverTimestamp, Timestamp
+    runTransaction, serverTimestamp, Timestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
 import {
-    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    sendEmailVerification, sendPasswordResetEmail
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
 
 const config = window.FIREBASE_CONFIG;
@@ -48,11 +55,44 @@ function start() {
     let adminEmails = [];
     let lastConfigJson = null;
 
+    // Seule une adresse @aims-senegal.org confirmée peut voter.
+    const INSTITUTIONAL = /^[a-z0-9._%+-]+@([a-z0-9-]+\.)*aims-senegal\.org$/;
+
+    function voterState() {
+        if (!user) {
+            return { state: 'none', email: null };
+        }
+
+        const email = String(user.email || '').toLowerCase();
+
+        if (!INSTITUTIONAL.test(email)) {
+            return { state: 'wrong-domain', email: email };
+        }
+
+        if (!user.emailVerified) {
+            return { state: 'unverified', email: email };
+        }
+
+        return { state: 'ok', email: email };
+    }
+
     function currentEmail() {
+        const v = voterState();
+
+        return v.state === 'ok' ? v.email : null;
+    }
+
+    function syncSession() {
         try {
-            return window.sessionStorage.getItem(VOTER_SESSION) || null;
+            const email = currentEmail();
+
+            if (email) {
+                window.sessionStorage.setItem(VOTER_SESSION, email);
+            } else {
+                window.sessionStorage.removeItem(VOTER_SESSION);
+            }
         } catch (error) {
-            return null;
+            /* rien */
         }
     }
 
@@ -118,7 +158,7 @@ function start() {
                     voters[email] = voters[email] || { email: email, scrutins: {} };
                     voters[email].scrutins[v.type] = {
                         receipt: (data.voters[email] && data.voters[email].scrutins[v.type] || {}).receipt || '—',
-                        at: iso(v.at)
+                        at: v.at ? iso(v.at) : ''
                     };
                 });
 
@@ -214,9 +254,14 @@ function start() {
             }
         }
 
+        syncSession();
         watchVoters();
         watchAdmins();
         Scr.render();
+
+        if (currentEmail()) {
+            checkVoter(currentEmail());
+        }
     });
 
     function watchAdmins() {
@@ -332,23 +377,26 @@ function start() {
                 ballot._sending = true;
 
                 const ref = doc(collection(db, 'ballots'));
-                const batch = writeBatch(db);
+                const tallyRef = doc(db, 'tallies', type);
+                const voterRef = doc(db, 'voters', voterKey(email, type));
 
-                batch.set(doc(db, 'voters', voterKey(email, type)), {
-                    email: email.toLowerCase(),
-                    type: type,
-                    at: serverTimestamp()
-                });
-                batch.set(ref, {
-                    type: type,
-                    choices: ballot.choices,
-                    blank: !!ballot.blank,
-                    receipt: ballot.receipt,
-                    at: serverTimestamp()
-                });
                 ballot._id = ref.id;
 
-                batch.commit().catch(function (error) {
+                // Bulletin + émargement + compteur, ensemble (transaction).
+                runTransaction(db, async function (tx) {
+                    const tally = await tx.get(tallyRef);
+                    const n = tally.exists() ? (tally.data().n || 0) : 0;
+
+                    tx.set(voterRef, { email: email, type: type });
+                    tx.set(ref, {
+                        type: type,
+                        choices: ballot.choices,
+                        blank: !!ballot.blank,
+                        receipt: ballot.receipt,
+                        at: serverTimestamp()
+                    });
+                    tx.set(tallyRef, { n: n + 1, last: ref.id });
+                }).catch(function (error) {
                     report(error);
                     window.alert(
                         (window.VoteI18n && window.VoteI18n.lang() === 'en')
@@ -416,7 +464,7 @@ function start() {
                 const snap = await getDoc(doc(db, 'voters', voterKey(email, type)));
 
                 if (snap.exists()) {
-                    found[type] = iso(snap.data().at);
+                    found[type] = '';
                 }
             } catch (error) {
                 report(error);
@@ -434,6 +482,99 @@ function start() {
                 }
             });
         });
+    }
+
+    /* ------------------------------------ comptes des votants (email) */
+    function lang() {
+        return (window.VoteI18n && window.VoteI18n.lang() === 'en') ? 'en' : 'fr';
+    }
+
+    function backUrl() {
+        return window.location.origin + window.location.pathname + '#email';
+    }
+
+    function authMessage(error) {
+        const fr = {
+            'auth/email-already-in-use': 'Un compte existe déjà avec cette adresse : utilisez « Se connecter ».',
+            'auth/invalid-credential': 'Adresse ou mot de passe incorrect.',
+            'auth/wrong-password': 'Adresse ou mot de passe incorrect.',
+            'auth/user-not-found': 'Aucun compte avec cette adresse : utilisez « Créer mon compte ».',
+            'auth/weak-password': 'Mot de passe trop court : 6 caractères minimum.',
+            'auth/invalid-email': 'Adresse email invalide.',
+            'auth/too-many-requests': 'Trop de tentatives. Réessayez dans quelques minutes.',
+            'auth/network-request-failed': 'Pas de connexion internet. Réessayez.',
+            'auth/popup-closed-by-user': 'Connexion annulée.'
+        };
+        const en = {
+            'auth/email-already-in-use': 'An account already exists with this address: use “Sign in”.',
+            'auth/invalid-credential': 'Wrong email or password.',
+            'auth/wrong-password': 'Wrong email or password.',
+            'auth/user-not-found': 'No account with this address: use “Create my account”.',
+            'auth/weak-password': 'Password too short: at least 6 characters.',
+            'auth/invalid-email': 'Invalid email address.',
+            'auth/too-many-requests': 'Too many attempts. Try again in a few minutes.',
+            'auth/network-request-failed': 'No internet connection. Try again.',
+            'auth/popup-closed-by-user': 'Sign-in cancelled.'
+        };
+        const table = lang() === 'en' ? en : fr;
+
+        return table[error && error.code] || ((lang() === 'en' ? 'Error: ' : 'Erreur : ') + ((error && error.message) || error));
+    }
+
+    async function registerVoter(email, password) {
+        email = String(email || '').trim().toLowerCase();
+
+        if (!INSTITUTIONAL.test(email)) {
+            throw new Error(lang() === 'en'
+                ? 'Only addresses ending with @aims-senegal.org can vote.'
+                : 'Seules les adresses se terminant par @aims-senegal.org peuvent voter.');
+        }
+
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+        auth.languageCode = lang();
+        await sendEmailVerification(cred.user, { url: backUrl() });
+    }
+
+    async function loginVoter(email, password) {
+        email = String(email || '').trim().toLowerCase();
+        await signInWithEmailAndPassword(auth, email, password);
+    }
+
+    async function resendVerification() {
+        if (user && !user.emailVerified) {
+            auth.languageCode = lang();
+            await sendEmailVerification(user, { url: backUrl() });
+        }
+    }
+
+    // Après le clic sur le lien reçu par email : recharge l'état du compte.
+    async function refreshVoter() {
+        if (!user) {
+            return false;
+        }
+
+        await user.reload();
+        user = auth.currentUser;
+
+        if (user && user.emailVerified) {
+            await user.getIdToken(true);
+        }
+
+        syncSession();
+        Scr.render();
+
+        if (currentEmail()) {
+            await checkVoter(currentEmail());
+        }
+
+        return !!currentEmail();
+    }
+
+    async function resetPassword(email) {
+        email = String(email || '').trim().toLowerCase();
+        auth.languageCode = lang();
+        await sendPasswordResetEmail(auth, email, { url: backUrl() });
     }
 
     function report(error) {
@@ -455,6 +596,14 @@ function start() {
             });
         },
         signOut: function () { return signOut(auth); },
+        voterState: voterState,
+        voterEmail: currentEmail,
+        registerVoter: registerVoter,
+        loginVoter: loginVoter,
+        resendVerification: resendVerification,
+        refreshVoter: refreshVoter,
+        resetPassword: resetPassword,
+        authMessage: authMessage,
         sync: sync,
         checkVoter: checkVoter,
         adminEmails: function () { return adminEmails.slice(); },
@@ -469,9 +618,10 @@ function start() {
     // La page est déjà rendue en mode local : on bascule en mode en ligne.
     Scr.render();
 
-    const email = currentEmail();
-
-    if (email) {
-        checkVoter(email);
-    }
+    // Retour depuis le lien de confirmation (…#email) : on recharge l'état.
+    window.addEventListener('focus', function () {
+        if (user && !user.emailVerified) {
+            refreshVoter().catch(report);
+        }
+    });
 }
