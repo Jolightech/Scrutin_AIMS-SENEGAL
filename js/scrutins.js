@@ -778,12 +778,14 @@
             + '</form>'
             + '<hr class="sep">'
             + '<div class="row">'
+            + '<button class="btn btn-danger" type="button" data-admin-clear-indicators>Effacer tous les indicateurs</button>'
             + '<button class="btn btn-danger" type="button" data-admin-reset-results>Réinitialiser les résultats</button>'
             + '<button class="btn btn-danger" type="button" data-admin-reset-all>Réinitialiser tout le tableau de bord</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset-votes>Effacer uniquement les bulletins et les votants</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset>Recharger les données de démonstration</button>'
             + '</div>'
-            + '<p class="small muted" style="margin:.8rem 0 0">« Réinitialiser les résultats » remet à zéro l\'onglet Résultats et la vue vidéoprojecteur (bulletins, voix, graphiques, élu(e)). Candidats et votants sont conservés.</p>'
+            + '<p class="small muted" style="margin:.8rem 0 0">« Effacer tous les indicateurs » remet tous les compteurs à zéro : bulletins, voix, votes blancs, participation, graphiques et élu(e) dans les onglets Accueil, Résultats, Vidéoprojecteur et Administration, pour les quatre scrutins. Les candidats sont conservés.</p>'
+            + '<p class="small muted" style="margin:.4rem 0 0">« Réinitialiser les résultats » remet à zéro l\'onglet Résultats et la vue vidéoprojecteur (bulletins, voix, graphiques, élu(e)). Candidats et votants sont conservés.</p>'
             + '<p class="small muted" style="margin:.4rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin. Le code secret est conservé.</p>'
             + '</div>';
 
@@ -1183,6 +1185,25 @@
         hit = target.closest('[data-admin-export-voters]');
         if (hit) {
             exportVotersCsv();
+
+            return;
+        }
+
+        hit = target.closest('[data-admin-clear-indicators]');
+        if (hit) {
+            if (window.confirm('Effacer tous les indicateurs ?\n\nTous les bulletins, votes et votants des quatre scrutins seront supprimés, et les résultats repartent de zéro. Les candidats sont conservés.')) {
+                TYPES.forEach(function (t) { scrutin(t.key).ballots = []; });
+                data.voters = {};
+                session(VOTER_SESSION, null);
+                save();
+
+                if (window.PreviewResults) {
+                    window.PreviewResults.reset();
+                }
+
+                notice = { kind: 'success', text: 'Tous les indicateurs ont été remis à zéro.' };
+                renderAll();
+            }
 
             return;
         }
