@@ -44,6 +44,12 @@
         'Données enregistrées dans ce navigateur': 'Data saved in this browser',
         'Données partagées en ligne': 'Data shared online',
         'Se connecter avec Google': 'Sign in with Google',
+        'Administrateurs': 'Administrators',
+        'Chaque administrateur se connecte avec son compte Google à cette adresse.': 'Each administrator signs in with their Google account at this address.',
+        'Vous': 'You',
+        'Ajouter un administrateur': 'Add an administrator',
+        'Ajouter': 'Add',
+        'Impossible d\'ajouter cette adresse comme administrateur.': 'This address could not be added as an administrator.',
         'Utiliser un autre compte Google': 'Use another Google account',
         'Connectez-vous avec le compte Google administrateur pour gérer les scrutins, les candidats et consulter la liste des votants.': 'Sign in with the administrator Google account to manage elections and candidates and to see the voter list.',
         'Écrans de l\'aperçu': 'Screens',
@@ -315,6 +321,9 @@
         [/^Résultats de (.+) remis à zéro\.$/, 'Results of $1 set back to zero.'],
         [/^Le compte (.+) n'est pas administrateur de cette plateforme\.$/, 'The account $1 is not an administrator of this platform.'],
         [/^Connecté avec Google : (.*)\.$/, 'Signed in with Google: $1.'],
+        [/^(.+) est maintenant administrateur\.$/, '$1 is now an administrator.'],
+        [/^(.+) n'est plus administrateur\.$/, '$1 is no longer an administrator.'],
+        [/^Retirer (.+) des administrateurs \?$/, 'Remove $1 from the administrators?'],
         [/^Supprimer (.+) du scrutin (.+) \?([\s\S]*)$/, function (m, name, label, rest) {
             return 'Delete ' + name + ' from the ' + label + ' election?' + (rest ? rest.replace(/Ce candidat a déjà reçu (\d+) voix : elles seront perdues\./, 'This candidate already has $1 vote(s): they will be lost.') : '');
         }],

@@ -5,9 +5,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Administrateur : compte propriétaire (admins/{uid}) ou adresse Google
+    // vérifiée ajoutée par un administrateur (adminEmails/{email}).
     function isAdmin() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+        && (exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+          || (request.auth.token.email_verified == true
+            && exists(/databases/$(database)/documents/adminEmails/$(request.auth.token.email))));
     }
 
     function validType(type) {
@@ -47,6 +51,18 @@ service cloud.firestore {
         && !exists(/databases/$(database)/documents/config/owner)
         && existsAfter(/databases/$(database)/documents/config/owner);
       allow update, delete: if false;
+    }
+
+    // Adresses des administrateurs supplémentaires.
+    match /adminEmails/{email} {
+      allow get: if request.auth != null && (request.auth.token.email == email || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly(['email', 'by', 'at'])
+        && request.resource.data.email == email
+        && request.resource.data.at == request.time;
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // Bulletins : anonymes (aucune adresse), lecture publique pour les

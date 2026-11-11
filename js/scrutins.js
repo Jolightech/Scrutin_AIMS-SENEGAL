@@ -809,7 +809,7 @@
             + '<div class="card-head"><div><h2>Sécurité et réinitialisation</h2>'
             + '<p class="card-sub">Le code secret protège cette page ; la réinitialisation efface tout le tableau de bord.</p></div>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-logout>Se déconnecter</button></div>'
-            + (online() ? '<p class="small muted">Connecté avec Google : ' + esc((window.VoteCloud.user() || {}).email || '') + '.</p>' : ''
+            + (online() ? renderAdmins() : ''
                 + '<form data-admin-code-form onsubmit="return false">'
                 + '<div class="grid grid-2" style="gap:0 1.1rem">'
                 + '<div class="field"><label class="label" for="admin-code-current">Code secret actuel</label>'
@@ -906,6 +906,28 @@
         }
 
         renderAdmin(true);
+    }
+
+    /* Administrateurs (mode en ligne) : comptes Google autorisés. */
+    function renderAdmins() {
+        var me = (window.VoteCloud.user() || {}).email || '';
+        var list = window.VoteCloud.adminEmails();
+
+        return '<p class="small muted">Connecté avec Google : ' + esc(me) + '.</p>'
+            + '<h3 style="margin:1.1rem 0 .3rem">Administrateurs</h3>'
+            + '<p class="small muted" style="margin-bottom:.7rem">Chaque administrateur se connecte avec son compte Google à cette adresse.</p>'
+            + '<ul class="admin-list">'
+            + '<li><strong>' + esc(me) + '</strong> <span class="badge">Vous</span></li>'
+            + list.filter(function (email) { return email !== me.toLowerCase(); }).map(function (email) {
+                return '<li><strong>' + esc(email) + '</strong>'
+                    + '<button class="btn btn-ghost btn-sm" type="button" data-admin-remove="' + esc(email) + '">Retirer</button></li>';
+            }).join('')
+            + '</ul>'
+            + '<form class="row" data-admin-add-form onsubmit="return false" style="margin-top:.7rem; align-items:flex-end">'
+            + '<div style="flex:1; min-width:220px"><label class="label" for="admin-add-email">Ajouter un administrateur</label>'
+            + '<input class="input" id="admin-add-email" name="email" type="email" placeholder="prenom.nom@aims-senegal.org"></div>'
+            + '<button class="btn" type="submit">Ajouter</button>'
+            + '</form>';
     }
 
     function renderVoters() {
@@ -1236,6 +1258,20 @@
             return;
         }
 
+        hit = target.closest('[data-admin-remove]');
+        if (hit && online()) {
+            var gone = hit.getAttribute('data-admin-remove');
+
+            if (window.confirm('Retirer ' + gone + ' des administrateurs ?')) {
+                window.VoteCloud.removeAdmin(gone).then(function () {
+                    notice = { kind: 'success', text: gone + ' n\'est plus administrateur.' };
+                    renderAdmin();
+                });
+            }
+
+            return;
+        }
+
         hit = target.closest('[data-cloud-signin]');
         if (hit && online()) {
             window.VoteCloud.signIn();
@@ -1356,6 +1392,23 @@
         if (lock) {
             event.preventDefault();
             unlockAdmin(lock);
+
+            return;
+        }
+
+        var addAdmin = event.target.closest('[data-admin-add-form]');
+
+        if (addAdmin && online()) {
+            event.preventDefault();
+
+            var newEmail = String(addAdmin.elements.email.value || '').trim().toLowerCase();
+
+            window.VoteCloud.addAdmin(newEmail).then(function (ok) {
+                notice = ok
+                    ? { kind: 'success', text: newEmail + ' est maintenant administrateur.' }
+                    : { kind: 'error', text: 'Impossible d\'ajouter cette adresse comme administrateur.' };
+                renderAdmin();
+            });
 
             return;
         }

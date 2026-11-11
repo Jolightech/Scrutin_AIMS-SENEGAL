@@ -44,6 +44,8 @@ function start() {
     let admin = false;
     let ready = { config: false, ballots: false };
     let stopVoters = null;
+    let stopAdmins = null;
+    let adminEmails = [];
     let lastConfigJson = null;
 
     function currentEmail() {
@@ -182,6 +184,17 @@ function start() {
 
                 admin = me.exists();
 
+                // Administrateur ajouté par adresse email (compte Google vérifié).
+                if (!admin && user.email && user.emailVerified) {
+                    try {
+                        const byEmail = await getDoc(doc(db, 'adminEmails', user.email.toLowerCase()));
+
+                        admin = byEmail.exists();
+                    } catch (error) {
+                        admin = false;
+                    }
+                }
+
                 // Premier administrateur : le premier compte connecté réclame
                 // l'administration tant que personne ne l'a fait.
                 if (!admin) {
@@ -202,8 +215,66 @@ function start() {
         }
 
         watchVoters();
+        watchAdmins();
         Scr.render();
     });
+
+    function watchAdmins() {
+        if (stopAdmins) {
+            stopAdmins();
+            stopAdmins = null;
+        }
+
+        adminEmails = [];
+
+        if (!admin) {
+            return;
+        }
+
+        stopAdmins = onSnapshot(collection(db, 'adminEmails'), function (snap) {
+            adminEmails = [];
+            snap.forEach(function (d) { adminEmails.push(d.id); });
+            adminEmails.sort();
+            Scr.render();
+        }, report);
+    }
+
+    async function addAdmin(email) {
+        const id = String(email || '').trim().toLowerCase();
+
+        if (!admin || !/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(id)) {
+            return false;
+        }
+
+        try {
+            await setDoc(doc(db, 'adminEmails', id), { email: id, by: (user && user.email) || '', at: serverTimestamp() });
+
+            return true;
+        } catch (error) {
+            report(error);
+
+            return false;
+        }
+    }
+
+    async function removeAdmin(email) {
+        if (!admin) {
+            return false;
+        }
+
+        try {
+            const batch = writeBatch(db);
+
+            batch.delete(doc(db, 'adminEmails', String(email).toLowerCase()));
+            await batch.commit();
+
+            return true;
+        } catch (error) {
+            report(error);
+
+            return false;
+        }
+    }
 
     /* --------------------------------------- page -> serveur (écriture) */
     function configOf(data) {
@@ -385,7 +456,10 @@ function start() {
         },
         signOut: function () { return signOut(auth); },
         sync: sync,
-        checkVoter: checkVoter
+        checkVoter: checkVoter,
+        adminEmails: function () { return adminEmails.slice(); },
+        addAdmin: addAdmin,
+        removeAdmin: removeAdmin
     };
 
     document.querySelectorAll('.preview-tag').forEach(function (tag) {
