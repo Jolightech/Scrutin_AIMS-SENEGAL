@@ -57,6 +57,25 @@
         closed: { label: 'Clos', badge: 'badge-closed' }
     };
 
+    /* Lien a donner aux votants : adresse reelle du site (GitHub Pages ou
+       autre hebergement) + ?scrutin=focal-point-<type>, qui ouvre directement
+       la verification puis le bulletin du bon scrutin. */
+    var SITE_URL = 'https://jolightech.github.io/Scrutin_AIMS-SENEGAL/';
+
+    function siteBase() {
+        var loc = window.location;
+
+        if (/^https?:$/.test(loc.protocol) && !/^(localhost|127\.0\.0\.1)$/.test(loc.hostname)) {
+            return loc.origin + loc.pathname.replace(/index\.html$/, '');
+        }
+
+        return SITE_URL;
+    }
+
+    function voteLink(key) {
+        return siteBase() + '?scrutin=focal-point-' + key + '#email';
+    }
+
     /* ------------------------------------------------------------ outils */
     function all(selector, root) {
         return Array.prototype.slice.call((root || document).querySelectorAll(selector));
@@ -386,6 +405,18 @@
     /* ----------------------------------------------------------- bulletin */
     var currentVote = TYPES[0].key;
 
+    // Lien partage : ?scrutin=focal-point-academic (ou academic) ouvre ce scrutin.
+    (function () {
+        var match = /[?&]scrutin=([^&#]+)/.exec(window.location.search);
+        var wanted = match ? decodeURIComponent(match[1]).toLowerCase().replace(/^focal-point-/, '') : '';
+
+        TYPES.forEach(function (t) {
+            if (t.key === wanted) {
+                currentVote = t.key;
+            }
+        });
+    })();
+
     function nextUnvoted(fromKey) {
         var start = TYPES.map(function (t) { return t.key; }).indexOf(fromKey);
 
@@ -646,7 +677,7 @@
             + '<div><div class="label">Code à projeter</div>'
             + '<span class="code-pill"><small>code</small> ' + esc(type.code) + '</span></div>'
             + '<div style="flex:1; min-width:260px"><label class="label" for="admin-link-' + type.key + '">Lien direct</label>'
-            + '<input class="input mono" id="admin-link-' + type.key + '" type="text" readonly value="https://vote.aims-senegal.org/scrutin/focal-point-' + type.key + '"></div>'
+            + '<input class="input mono" id="admin-link-' + type.key + '" type="text" readonly value="' + esc(voteLink(type.key)) + '"></div>'
             + '<div><label class="label" for="admin-max">Choix par votant</label>'
             + '<select class="select" id="admin-max" data-admin-max>'
             + [1, 2, 3].map(function (n) {
@@ -655,7 +686,7 @@
             + '</select></div>'
             + '</div>'
             + '<div class="row" style="margin-top:.9rem">'
-            + '<button class="btn btn-ghost btn-sm" type="button" data-copy="https://vote.aims-senegal.org/scrutin/focal-point-' + type.key + '" data-copied="Lien copié">Copier le lien</button>'
+            + '<button class="btn btn-ghost btn-sm" type="button" data-copy="' + esc(voteLink(type.key)) + '" data-copied="Lien copié">Copier le lien</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-goto="ecran">Vue vidéoprojecteur</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-export>Export CSV</button>'
             + '</div>'
@@ -1296,6 +1327,7 @@
     window.VoteScrutins = {
         types: TYPES,
         data: function () { return data; },
-        render: renderAll
+        render: renderAll,
+        voteLink: voteLink
     };
 })();
