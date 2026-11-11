@@ -305,35 +305,58 @@
         container.innerHTML = TYPES.map(function (type) {
             var s = scrutin(type.key);
             var status = STATUS[s.status];
-            var voted = !!hasVoted(type.key);
+            var receiptCode = hasVoted(type.key);
+            var ready = s.status === 'open' && s.candidates.length;
             var action;
+            var note;
 
-            if (voted) {
-                action = '<span class="badge badge-accent">Vous avez voté</span>';
-            } else if (s.status === 'open' && s.candidates.length) {
+            if (receiptCode) {
+                action = '<span class="sc-done">Vous avez voté</span>';
+                note = 'Reçu : <b>' + esc(receiptCode) + '</b>';
+            } else if (ready) {
                 action = '<a class="btn" href="#email" data-goto="email" data-vote-type="' + type.key + '">Voter</a>';
+                note = s.max > 1 ? 'Jusqu\'à ' + s.max + ' choix, vote blanc possible.' : 'Un choix, vote blanc possible.';
+            } else if (s.status === 'closed') {
+                action = '<button class="btn sc-off" type="button" disabled>Scrutin clos</button>';
+                note = 'Le vote est terminé. Consultez les résultats.';
+            } else if (s.status === 'draft') {
+                action = '<button class="btn sc-off" type="button" disabled>Bientôt ouvert</button>';
+                note = 'Le scrutin n\'est pas encore ouvert.';
             } else {
-                action = '<button class="btn" type="button" disabled>Voter</button>';
+                action = '<button class="btn sc-off" type="button" disabled>Voter</button>';
+                note = 'Les candidatures n\'ont pas encore été publiées.';
             }
 
-            return '<article class="card">'
-                + '<div class="row" style="margin-bottom:.8rem">'
-                + '<span class="badge">Focal Point</span>'
+            return '<article class="sc-card sc-' + s.status + '">'
+                + '<header class="sc-head">'
+                + '<span class="sc-icon" aria-hidden="true">' + (ICONS[type.key] || '') + '</span>'
+                + '<div class="sc-title"><span class="sc-kicker">Focal Point</span>'
+                + '<h3>' + esc(type.short) + '</h3></div>'
                 + '<span class="badge ' + status.badge + '">' + status.label + '</span>'
-                + '</div>'
-                + '<h3 style="font-size:1.25rem; margin-bottom:.35rem">' + esc(type.label) + '</h3>'
-                + '<p class="small muted" style="margin-bottom:.8rem">' + esc(type.description) + '</p>'
-                + '<ul class="facts">'
-                + '<li><b>' + s.candidates.length + '</b> ' + (s.candidates.length > 1 ? 'candidats' : 'candidat') + '</li>'
-                + '<li><b>' + s.ballots.length + '</b> ' + (s.ballots.length > 1 ? 'bulletins' : 'bulletin') + '</li>'
-                + '<li><b>' + s.max + '</b> ' + (s.max > 1 ? 'choix par votant' : 'choix par votant') + '</li>'
-                + '</ul>'
-                + '<div class="row">' + action
+                + '</header>'
+                + '<p class="sc-desc">' + esc(type.description) + '</p>'
+                + '<dl class="sc-facts">'
+                + '<div><dt>' + (s.candidates.length > 1 ? 'Candidats' : 'Candidat') + '</dt><dd>' + s.candidates.length + '</dd></div>'
+                + '<div><dt>' + (s.ballots.length > 1 ? 'Bulletins' : 'Bulletin') + '</dt><dd>' + s.ballots.length + '</dd></div>'
+                + '<div><dt>Code</dt><dd class="sc-code">' + esc(type.code) + '</dd></div>'
+                + '</dl>'
+                + '<footer class="sc-foot">'
+                + '<div class="sc-actions">' + action
                 + '<a class="btn btn-ghost" href="#resultats" data-goto="resultats" data-results-type="' + type.key + '">Suivre en direct</a>'
                 + '</div>'
+                + '<p class="sc-note">' + note + '</p>'
+                + '</footer>'
                 + '</article>';
         }).join('');
     }
+
+    /* Pictogrammes des quatre types de scrutin (trait, couleur du texte). */
+    var ICONS = {
+        academic: '<svg viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/></svg>',
+        health: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M8.5 12h2l1-2 2 4 1-2h1"/></svg>',
+        online: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/><path d="M8.5 10.5a5 5 0 0 1 7 0M10.3 12.3a2.4 2.4 0 0 1 3.4 0"/></svg>',
+        logistics: '<svg viewBox="0 0 24 24"><path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3.5V16h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>'
+    };
 
     /* ------------------------------------------------- verification email */
     var emailError = null;

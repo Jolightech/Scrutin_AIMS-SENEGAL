@@ -3908,3 +3908,235 @@ body {
         margin-left: 0;
     }
 }
+
+/* ------------------------------------------------ Cartes des scrutins */
+
+[data-scrutins-home] {
+    gap: 1.1rem;
+}
+
+.sc-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--brand);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.5rem 1.3rem;
+    /* Double filet intérieur, comme un encadré officiel. */
+    box-shadow: inset 0 0 0 5px #fff, inset 0 0 0 6px var(--sunken);
+    transition: border-color var(--feedback) var(--ease);
+}
+
+.sc-card:hover {
+    border-color: var(--line-strong);
+    border-top-color: var(--brand);
+}
+
+.sc-card.sc-closed {
+    border-top-color: var(--ink-2);
+}
+
+.sc-card.sc-draft {
+    border-top-color: var(--line-strong);
+}
+
+.sc-head {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+}
+
+.sc-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: var(--radius);
+    background: var(--brand-50);
+    border: 1px solid var(--brand-100);
+    color: var(--brand);
+}
+
+.sc-icon svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sc-closed .sc-icon,
+.sc-draft .sc-icon {
+    background: var(--sunken);
+    border-color: var(--line);
+    color: var(--ink-2);
+}
+
+.sc-title {
+    min-width: 0;
+    flex: 1;
+}
+
+.sc-kicker {
+    display: block;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--muted);
+    line-height: 1.2;
+}
+
+.sc-title h3 {
+    margin: 0;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    line-height: 1.15;
+}
+
+.sc-head .badge {
+    align-self: flex-start;
+}
+
+.sc-desc {
+    margin: 1rem 0 1.1rem;
+    color: var(--ink-2);
+    font-size: .98rem;
+    line-height: 1.5;
+}
+
+.sc-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 0 1.2rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.sc-facts > div {
+    padding: .75rem .9rem;
+}
+
+.sc-facts > div + div {
+    border-left: 1px solid var(--line);
+}
+
+.sc-facts > div:first-child {
+    padding-left: 0;
+}
+
+.sc-facts dt {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.sc-facts dd {
+    margin: .15rem 0 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ink);
+}
+
+.sc-facts .sc-code {
+    font-size: 1.1rem;
+    letter-spacing: .12em;
+    padding-top: .25rem;
+}
+
+.sc-foot {
+    margin-top: auto;
+}
+
+.sc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+}
+
+.sc-actions .btn {
+    flex: 1 1 140px;
+}
+
+.btn.sc-off,
+.btn.sc-off:disabled {
+    background: var(--sunken);
+    color: var(--faint);
+    border-color: var(--line);
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.sc-done {
+    flex: 1 1 140px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .7rem 1rem;
+    border: 1px solid #b9dcc8;
+    border-radius: var(--radius-sm);
+    background: #eef7f1;
+    color: #17633d;
+    font-weight: 700;
+}
+
+.sc-done::before {
+    content: "";
+    width: .9em;
+    height: .9em;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.2 11.6 2.6 8l1.4-1.4 2.2 2.2 5.8-5.8L13.4 4.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6.2 11.6 2.6 8l1.4-1.4 2.2 2.2 5.8-5.8L13.4 4.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.sc-note {
+    margin: .75rem 0 0;
+    font-size: .88rem;
+    color: var(--muted);
+}
+
+.sc-note b {
+    color: var(--ink);
+    letter-spacing: .06em;
+}
+
+@media (max-width: 420px) {
+    .sc-card {
+        padding: 1.2rem 1.1rem 1.1rem;
+    }
+
+    .sc-facts > div {
+        padding: .65rem .55rem;
+    }
+
+    .sc-facts dd {
+        font-size: 1.3rem;
+    }
+}
+
+[data-scrutins-home] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sc-actions .btn,
+.sc-done {
+    white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+    [data-scrutins-home] {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Chiffres et boutons alignés d'une carte à l'autre. */
+.sc-desc {
+    flex: 1 0 auto;
+}
