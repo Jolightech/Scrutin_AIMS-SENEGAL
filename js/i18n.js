@@ -184,6 +184,9 @@
         // Score live
         'Les votes en direct, à projeter en salle pendant le dépouillement : chiffres lisibles du fond de la salle, aucun élément d\'interface.': 'Live votes, to show on the projector during the count: numbers you can read from the back of the room, no interface elements.',
         'Scrutin à projeter': 'Election to show',
+        'Tous les scrutins': 'All elections',
+        'Résultats des quatre scrutins': 'Results of the four elections',
+        'Élu(e)': 'Elected',
         'Afficher en plein écran': 'Show full screen',
         'Faire défiler les quatre scrutins toutes les 15 secondes': 'Show the four elections in turn, every 15 seconds',
         'En plein écran : flèches ← et → pour changer de scrutin, Échap pour quitter.': 'Full screen: use the ← and → keys to change election, Esc to exit.',
@@ -284,6 +287,7 @@
         [/^Dernier bulletin reçu à (\d\d:\d\d)$/, 'Last ballot received at $1'],
         [/^Scrutin clos, dernier bulletin à (\d\d:\d\d)\. Résultats définitifs\.$/, 'Election closed, last ballot at $1. Final results.'],
         [/^Scrutin (\d+) sur (\d+)$/, 'Election $1 of $2'],
+        [/^Les (\d+) scrutins$/, 'The $1 elections'],
         [/^(\d+) bulletins? sur (\d+) inscrits$/, '$1 ballot(s) out of $2 registered voters'],
         [/^sur (\d+) inscrits$/, 'out of $1 registered voters'],
         [/^réparties entre (\d+) candidats?$/, 'shared between $1 candidate(s)'],

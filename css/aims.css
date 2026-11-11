@@ -4205,3 +4205,384 @@ body {
         display: inline;
     }
 }
+
+/* ------------------------- Score live : les quatre scrutins en cadres */
+
+.live-all[hidden],
+[data-screen-single][hidden] {
+    display: none;
+}
+
+.live-all-head {
+    padding-bottom: 1.6vh;
+    margin-bottom: 2.2vh;
+    border-bottom: 2px solid var(--ink);
+}
+
+.live-all-head .eyebrow {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.live-all-head h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 1.1rem + 2.2vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.08;
+}
+
+.live-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2vh 1.6vw;
+}
+
+.live-frame {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 5px solid var(--brand);
+    border-radius: var(--radius);
+    padding: clamp(.9rem, .6rem + 1vw, 1.5rem);
+    box-shadow: inset 0 0 0 5px #fff, inset 0 0 0 6px var(--sunken);
+}
+
+.live-frame.live-closed {
+    border-top-color: var(--ink-2);
+}
+
+.live-frame.live-draft {
+    border-top-color: var(--line-strong);
+}
+
+.live-frame-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.live-frame-kicker {
+    display: block;
+    font-size: clamp(.8rem, .7rem + .3vw, 1rem);
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.live-frame-head h2 {
+    margin: 0;
+    font-size: clamp(1.5rem, 1rem + 1.4vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -.01em;
+}
+
+.live-frame-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .35rem;
+}
+
+.live-frame-code {
+    font-weight: 700;
+    letter-spacing: .14em;
+    color: var(--ink-2);
+    font-size: clamp(.85rem, .75rem + .3vw, 1.05rem);
+}
+
+.live-frame-stats {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    margin: 1.4vh 0 1.2vh;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.live-frame-stats > div {
+    padding: 1vh 1rem;
+}
+
+.live-frame-stats > div:first-child {
+    padding-left: 0;
+}
+
+.live-frame-stats > div + div {
+    border-left: 1px solid var(--line);
+}
+
+.live-frame-stats b {
+    display: block;
+    font-size: clamp(1.4rem, 1rem + 1.2vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.05;
+}
+
+.live-frame-stats span {
+    font-size: clamp(.78rem, .7rem + .25vw, .95rem);
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.live-frame-bar {
+    display: block;
+    height: 6px;
+    margin-top: .45rem;
+    background: #e6e9ee;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.live-frame-bar > i {
+    display: block;
+    height: 100%;
+    background: var(--brand);
+}
+
+.live-frame-winner {
+    margin: 0 0 1vh;
+    padding: .6rem .8rem;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--brand);
+    border-radius: var(--radius);
+    font-size: clamp(1rem, .85rem + .6vw, 1.45rem);
+}
+
+.live-frame-winner span {
+    color: var(--brand);
+    font-weight: 700;
+    font-size: .8em;
+    margin-right: .3rem;
+}
+
+.live-frame-empty {
+    margin: 1vh 0 0;
+    color: var(--muted);
+    font-size: clamp(.95rem, .85rem + .4vw, 1.25rem);
+}
+
+.live-frame-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.live-frame-list li {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto 4.2rem;
+    align-items: baseline;
+    column-gap: .7rem;
+    padding: .9vh 0 .8vh;
+    border-bottom: 1px solid var(--line);
+}
+
+.live-frame-list li:last-child {
+    border-bottom: 0;
+}
+
+.live-rank {
+    font-weight: 700;
+    color: var(--faint);
+    font-size: clamp(.95rem, .85rem + .4vw, 1.3rem);
+}
+
+.live-frame-list .is-leader .live-rank {
+    color: var(--brand);
+}
+
+.live-name {
+    font-weight: 700;
+    font-size: clamp(1rem, .85rem + .6vw, 1.5rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.live-votes {
+    color: var(--muted);
+    font-size: clamp(.85rem, .75rem + .3vw, 1.05rem);
+    white-space: nowrap;
+}
+
+.live-votes b {
+    position: relative;
+    display: inline-block;
+    color: var(--ink);
+    font-size: clamp(1.15rem, .95rem + .8vw, 1.8rem);
+}
+
+.live-pct {
+    text-align: right;
+    color: var(--ink-2);
+    font-size: clamp(.85rem, .75rem + .3vw, 1.05rem);
+    white-space: nowrap;
+}
+
+.live-track {
+    grid-column: 2 / -1;
+    display: block;
+    height: 8px;
+    margin-top: .5vh;
+    background: #e6e9ee;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.live-track > i {
+    display: block;
+    height: 100%;
+    background: #8a939f;
+}
+
+.live-frame-list .is-leader .live-track > i {
+    background: var(--brand);
+}
+
+.live-frame-list .is-bumped {
+    animation: live-bump 1.2s var(--ease);
+}
+
+@keyframes live-bump {
+    from { background: var(--brand-50); }
+    to { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .live-frame-list .is-bumped {
+        animation: none;
+    }
+}
+
+@media (max-width: 860px) {
+    .live-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 420px) {
+    .live-frame-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .live-frame-stats > div {
+        padding: .7rem .5rem;
+    }
+
+    .live-frame-list li {
+        grid-template-columns: 1.3rem minmax(0, 1fr) auto 3.6rem;
+        column-gap: .45rem;
+    }
+}
+
+/* Mode « tous les scrutins » : tout tient sur un écran 16:9. */
+.is-all .screen-top {
+    margin-bottom: 1.4vh;
+    padding-bottom: 1.2vh;
+}
+
+.live-all-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .2rem 1.5rem;
+    padding-bottom: 1.1vh;
+    margin-bottom: 1.6vh;
+}
+
+.live-all-head h1 {
+    font-size: clamp(1.5rem, 1rem + 1.5vw, 2.4rem);
+}
+
+.live-all-head .eyebrow {
+    order: 2;
+    margin: 0;
+}
+
+.live-grid {
+    gap: 1.6vh 1.4vw;
+}
+
+.live-frame {
+    padding: clamp(.8rem, .5rem + .7vw, 1.2rem) clamp(.9rem, .6rem + .8vw, 1.4rem);
+}
+
+.live-frame-head h2 {
+    font-size: clamp(1.35rem, .95rem + 1.1vw, 2rem);
+}
+
+.live-frame-meta {
+    flex-direction: row;
+    align-items: center;
+    gap: .7rem;
+}
+
+.live-frame-stats {
+    margin: 1vh 0 .6vh;
+}
+
+.live-frame-stats > div {
+    padding: .7vh .9rem;
+}
+
+.live-frame-stats b {
+    font-size: clamp(1.25rem, .9rem + 1vw, 1.9rem);
+}
+
+.live-frame-winner {
+    margin: .4vh 0 .6vh;
+    padding: .45rem .75rem;
+}
+
+.live-frame-list li {
+    padding: .55vh 0 .5vh;
+}
+
+.live-name {
+    font-size: clamp(.98rem, .82rem + .5vw, 1.35rem);
+}
+
+.live-votes b {
+    font-size: clamp(1.05rem, .9rem + .6vw, 1.55rem);
+}
+
+.live-track {
+    height: 6px;
+    margin-top: .35vh;
+}
+
+.is-all .screen-footer {
+    margin-top: 1.6vh;
+    padding-top: 1.2vh;
+}
+
+.screen-demo:fullscreen.is-all .screen-qr {
+    width: clamp(70px, 5.5vw, 100px);
+}
+
+.screen-join-code[hidden] {
+    display: none;
+}
+
+.is-all .screen-footer {
+    font-size: clamp(.85rem, .75rem + .3vw, 1.05rem);
+}
+
+.screen-demo:fullscreen.is-all .screen-wrap {
+    padding-top: 1.8vh;
+    padding-bottom: 1.2vh;
+}
+
+.screen-demo:fullscreen.is-all .screen-qr {
+    width: clamp(64px, 4.6vw, 88px);
+}
+
+.is-all .screen-footer {
+    margin-top: 1.2vh;
+    padding-top: .9vh;
+}
+
+.is-all .live-grid {
+    gap: 1.3vh 1.4vw;
+}
