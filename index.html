@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Vote AIMS — aperçu de l'interface</title>
-    <link rel="stylesheet" href="css/aims.css?v=20261111d">
+    <link rel="stylesheet" href="css/aims.css?v=20261111f">
     <style>
         /* Habillage propre à l'aperçu : n'existe pas dans le projet Laravel. */
         .preview-bar {
@@ -119,6 +119,7 @@
 <!-- Écran d'ouverture : crédits de la plateforme -->
 <div class="splash" id="splash" role="dialog" aria-modal="true" aria-labelledby="splash-title">
     <div class="splash-card">
+        <button class="lang-toggle splash-lang" type="button" data-lang-toggle>English</button>
         <img class="splash-logo" src="img/aims-senegal-logo.jpg" alt="AIMS Sénégal">
         <p class="splash-eyebrow">African Institute for Mathematical Sciences, Sénégal</p>
         <h1 class="splash-title" id="splash-title">Plateforme de vote<br>des délégués et focal points</h1>
@@ -186,6 +187,7 @@
         <nav class="nav" aria-label="Navigation principale">
             <a href="#accueil" data-goto="accueil" data-nav="vote" class="is-active">Voter</a>
             <a href="#admin" data-goto="admin" data-nav="admin">Administration</a>
+            <button class="lang-toggle" type="button" data-lang-toggle>English</button>
         </nav>
     </div>
 </header>
@@ -199,7 +201,7 @@
                 <button role="tab" aria-selected="false" data-panel="email">1. Vérification</button>
                 <button role="tab" aria-selected="false" data-panel="bulletin">2. Bulletins</button>
                 <button role="tab" aria-selected="false" data-panel="resultats">3. Résultats</button>
-                <button role="tab" aria-selected="false" data-panel="ecran">Vidéoprojecteur</button>
+                <button role="tab" aria-selected="false" data-panel="ecran">Score live</button>
                 <button role="tab" aria-selected="false" data-panel="admin">Administration</button>
             </div>
         </div>
@@ -340,7 +342,7 @@
                 <span class="live-dot" aria-hidden="true"></span>
                 <span class="muted" data-demo-live aria-live="polite">En attente des premiers bulletins.</span>
                 <span class="spacer row">
-                    <button class="btn btn-ghost btn-sm" type="button" data-goto="ecran">Vue vidéoprojecteur</button>
+                    <button class="btn btn-ghost btn-sm" type="button" data-goto="ecran">Score live</button>
                 </span>
             </div>
         </div>
@@ -441,9 +443,9 @@
     <!-- ============================================== 5. Vidéoprojecteur -->
     <section class="panel" id="panel-ecran" hidden>
         <div class="page-head">
-            <h1>Vue vidéoprojecteur</h1>
+            <h1>Score live</h1>
             <p class="lead">
-                Page plein écran à projeter pendant le dépouillement en direct :
+                Les votes en direct, à projeter en salle pendant le dépouillement :
                 chiffres lisibles du fond de la salle, aucun élément d'interface.
             </p>
             <div class="results-picker">
@@ -564,16 +566,19 @@
     Le choix de chaque votant reste secret : les bulletins ne portent aucune adresse email.
 </footer>
 
-<script src="js/ballot.js?v=20261111d"></script>
-<script src="js/scrutins.js?v=20261111d"></script>
-<script src="js/live.js?v=20261111d"></script>
-<script src="js/chart.js?v=20261111d"></script>
-<script src="js/qr.js?v=20261111d"></script>
+<script src="js/ballot.js?v=20261111f"></script>
+<script src="js/scrutins.js?v=20261111f"></script>
+<script src="js/live.js?v=20261111f"></script>
+<script src="js/chart.js?v=20261111f"></script>
+<script src="js/qr.js?v=20261111f"></script>
+<script src="js/i18n.js?v=20261111f"></script>
 <script>
     (function () {
         'use strict';
 
-        var LOCALE = 'fr-FR';
+        var LOCALE = (function () {
+            try { return window.localStorage.getItem('aims.vote.lang') === 'en' ? 'en-GB' : 'fr-FR'; } catch (e) { return 'fr-FR'; }
+        })();  // langue choisie (js/i18n.js)
 
         function all(selector, root) {
             return Array.prototype.slice.call((root || document).querySelectorAll(selector));

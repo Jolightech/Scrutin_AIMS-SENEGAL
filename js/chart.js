@@ -34,7 +34,9 @@
     'use strict';
 
     var NS = 'http://www.w3.org/2000/svg';
-    var LOCALE = 'fr-FR';
+    var LOCALE = (function () {
+        try { return window.localStorage.getItem('aims.vote.lang') === 'en' ? 'en-GB' : 'fr-FR'; } catch (e) { return 'fr-FR'; }
+    })();  // langue choisie (js/i18n.js)
 
     /* ------------------------------------------------------------ outils */
 

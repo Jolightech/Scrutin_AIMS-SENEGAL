@@ -713,7 +713,7 @@
             + '</div>'
             + '<div class="row" style="margin-top:.9rem">'
             + '<button class="btn btn-ghost btn-sm" type="button" data-copy="' + esc(voteLink(type.key)) + '" data-copied="Lien copié">Copier le lien</button>'
-            + '<button class="btn btn-ghost btn-sm" type="button" data-goto="ecran" data-results-type="' + type.key + '">Vue vidéoprojecteur</button>'
+            + '<button class="btn btn-ghost btn-sm" type="button" data-goto="ecran" data-results-type="' + type.key + '">Score live</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-export>Export CSV</button>'
             + '</div>'
             + '<hr class="sep">'
@@ -810,7 +810,7 @@
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset-votes>Effacer uniquement les bulletins et les votants</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset>Recharger les données de démonstration</button>'
             + '</div>'
-            + '<p class="small muted" style="margin:.8rem 0 0">« Effacer tous les indicateurs » remet tous les compteurs à zéro : bulletins, voix, votes blancs, participation, graphiques et élu(e) dans les onglets Accueil, Résultats, Vidéoprojecteur et Administration, pour les quatre scrutins. Les candidats sont conservés.</p>'
+            + '<p class="small muted" style="margin:.8rem 0 0">« Effacer tous les indicateurs » remet tous les compteurs à zéro : bulletins, voix, votes blancs, participation, graphiques et élu(e) dans les onglets Accueil, Résultats, Score live et Administration, pour les quatre scrutins. Les candidats sont conservés.</p>'
             + '<p class="small muted" style="margin:.4rem 0 0">« Réinitialiser les résultats » efface les bulletins du seul scrutin choisi (' + esc(type.label) + ') : ses votants pourront revoter à ce scrutin. Les candidats sont conservés.</p>'
             + '<p class="small muted" style="margin:.4rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin. Le code secret est conservé.</p>'
             + '</div>';
@@ -919,7 +919,9 @@
 
         var d = new Date(iso);
 
-        return d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        var loc = (window.VoteI18n && window.VoteI18n.lang() === 'en') ? 'en-GB' : 'fr-FR';
+
+        return d.toLocaleDateString(loc) + ' ' + d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
     }
 
     function exportVotersCsv() {
@@ -1403,7 +1405,7 @@
         }
 
         if (panel === 'ecran') {
-            return { panel: 'admin', message: 'La vue vidéoprojecteur est réservée à l\'administration. Saisissez le code secret.' };
+            return { panel: 'admin', message: 'Le Score live est réservé à l\'administration. Saisissez le code secret.' };
         }
 
         if ((panel === 'bulletin' || panel === 'resultats') && !voterEmail()) {

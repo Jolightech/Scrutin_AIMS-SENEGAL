@@ -4140,3 +4140,68 @@ body {
 .sc-desc {
     flex: 1 0 auto;
 }
+
+/* ----------------------------------------------------- Bouton de langue */
+
+.lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-left: .4rem;
+    padding: .4rem .75rem;
+    font: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.lang-toggle::before {
+    content: "";
+    width: 1em;
+    height: 1em;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.lang-toggle:hover {
+    border-color: var(--ink-2);
+}
+
+.lang-toggle:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+}
+
+.splash-card {
+    position: relative;
+}
+
+.splash-lang {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    margin: 0;
+}
+
+.lang-short {
+    display: none;
+}
+
+@media (max-width: 560px) {
+    .nav .lang-toggle {
+        padding: .35rem .5rem;
+    }
+
+    .nav .lang-long {
+        display: none;
+    }
+
+    .nav .lang-short {
+        display: inline;
+    }
+}
