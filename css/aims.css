@@ -3115,3 +3115,434 @@ img.avatar.avatar-sm {
         transition: none;
     }
 }
+
+/* =====================================================================
+   THÈME INSTITUTIONNEL
+   Couche finale : style sobre de commission électorale. Fond blanc, gris
+   neutres froids, rouge AIMS réservé à la marque et aux actions, une seule
+   famille (Source Sans 3), chiffres tabulaires, angles discrets, aucune
+   ombre ni dégradé décoratif. Les règles ci-dessous priment sur le reste.
+   ===================================================================== */
+
+:root {
+    --accent: var(--brand);
+    --accent-soft: var(--brand-200);
+    --accent-ink: var(--brand-800);
+    --accent-wash: var(--brand-50);
+
+    --ink: #16191e;
+    --ink-2: #333a44;
+    --muted: #525c69;
+    --faint: #7d8693;
+    --line: #d3d8df;
+    --line-strong: #b4bcc7;
+    --bg: #f2f4f7;
+    --sunken: #f6f7f9;
+    --card: #ffffff;
+
+    --radius: 4px;
+    --radius-sm: 3px;
+    --radius-xs: 2px;
+    --shadow: none;
+    --shadow-lg: none;
+
+    --font-display: var(--font);
+}
+
+body {
+    font-variant-numeric: tabular-nums;
+}
+
+h1,
+.hero-title,
+.section-head h2,
+.winner-name {
+    font-family: var(--font);
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+h1 {
+    font-size: clamp(1.6rem, 1.25rem + 1.4vw, 2.2rem);
+}
+
+.eyebrow {
+    color: var(--muted);
+}
+
+.card,
+.hero,
+.float-card,
+.step,
+.stat {
+    border-radius: var(--radius);
+    box-shadow: none;
+}
+
+/* Pas de motif décoratif dans le bandeau d'accueil. */
+.hero::after {
+    display: none;
+}
+
+.hero-title {
+    font-size: clamp(1.9rem, 1.3rem + 2.4vw, 2.9rem);
+    line-height: 1.12;
+    max-width: 18ch;
+}
+
+.section-head h2 {
+    font-size: clamp(1.35rem, 1.15rem + .8vw, 1.75rem);
+}
+
+/* Chiffres clés : un trait de couleur en tête, pas de carte flottante. */
+.stat {
+    border-top: 3px solid var(--line-strong);
+}
+
+.stat-brand {
+    border-top-color: var(--brand);
+}
+
+.stat-value {
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+/* Pastilles du classement : neutres, sans or. */
+.result.is-leader .result-name::after {
+    background: var(--sunken);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+}
+
+.results.is-closed .result.is-leader .result-name::after {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+}
+
+/* Teintes des candidats : palette sourde, lisible au vidéoprojecteur. */
+.chart,
+.screen .chart {
+    --s1: #1f4e79;
+    --s2: #2c7a6e;
+    --s3: #a6531e;
+    --s4: #5b4a8b;
+    --s5: #9c3d5f;
+    --s6: #a07a14;
+    --s7: #4d6b2a;
+    --s8: #6b7480;
+    --s-other: #9aa2ad;
+    --chart-grid: #e6e9ee;
+    --chart-axis: #b4bcc7;
+    --chart-track: #e6e9ee;
+}
+
+/* ------------------------------------------- Participation (remplace l'anneau) */
+
+.turnout {
+    width: 100%;
+}
+
+.turnout-value {
+    font-size: clamp(2.2rem, 1.6rem + 2vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.015em;
+    color: var(--ink);
+}
+
+.turnout-label {
+    margin-top: .3rem;
+    font-weight: 600;
+    color: var(--ink-2);
+}
+
+.turnout-bar {
+    position: relative;
+    height: 12px;
+    margin: 1rem 0 .55rem;
+    background: #e6e9ee;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.turnout-bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--brand);
+    transition: width var(--reveal) var(--ease);
+}
+
+.turnout-foot {
+    font-size: .92rem;
+    color: var(--muted);
+}
+
+/* ------------------------------------------------- Annonce de l'élu(e) */
+
+.winner {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--brand);
+    border-radius: var(--radius);
+    transform: none;
+    transition: opacity var(--reveal) ease-out;
+}
+
+.winner-photo,
+.avatar-initials.winner-photo {
+    border-radius: var(--radius);
+    background: var(--sunken);
+    color: var(--ink-2);
+    box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.winner-label {
+    color: var(--brand);
+}
+
+.winner-name {
+    font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2.1rem);
+}
+
+/* ------------------------------------------------ Vue vidéoprojecteur */
+
+.screen {
+    --ink: #16191e;
+    --ink-2: #333a44;
+    --muted: #525c69;
+    --faint: #7d8693;
+    --line: #d3d8df;
+    --line-strong: #b4bcc7;
+    --card: #ffffff;
+    --sunken: #f2f4f7;
+
+    background: #fff;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-top: 6px solid var(--brand);
+    border-radius: var(--radius);
+}
+
+.screen .chart {
+    --chart-ink: var(--ink);
+    --chart-muted: var(--muted);
+    --chart-grid: #e6e9ee;
+    --chart-axis: #b4bcc7;
+    --chart-surface: #ffffff;
+}
+
+.screen-head {
+    border-bottom: 2px solid var(--ink);
+}
+
+.screen-head .eyebrow {
+    color: var(--brand);
+    font-weight: 700;
+}
+
+.screen-head h1 {
+    font-weight: 700;
+}
+
+.screen-stats {
+    gap: 0;
+}
+
+.screen-stats > div {
+    padding: 0 1.6rem;
+    border-left: 1px solid var(--line);
+}
+
+.screen-stats > div:first-child {
+    border-left: 0;
+}
+
+.screen-stat-value {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.screen-panel-title {
+    color: var(--ink);
+    font-weight: 700;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.screen .result {
+    border-bottom: 1px solid var(--line);
+}
+
+.screen .result.is-leader .result-rank,
+.screen .result-votes.is-bumped {
+    color: var(--brand);
+}
+
+.screen .result.is-leader .result-name::after {
+    background: var(--sunken);
+    color: var(--ink-2);
+}
+
+.screen .results.is-closed .result.is-leader .result-name::after {
+    background: var(--brand);
+    color: #fff;
+}
+
+.screen .track {
+    background: #e6e9ee;
+    border-radius: 2px;
+}
+
+.screen .track-fill {
+    background: #8a939f;
+}
+
+.screen .result.is-leader .track-fill {
+    background: var(--brand);
+}
+
+.screen .avatar,
+.screen .avatar-initials {
+    background: var(--sunken);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.screen .badge-open,
+.screen .badge-closed,
+.screen .badge-draft {
+    color: var(--ink-2);
+    border-color: var(--line);
+}
+
+.screen .badge-closed::before {
+    background: var(--ink-2);
+}
+
+.screen .winner {
+    background: #fff;
+    border-color: var(--line);
+    border-left-color: var(--brand);
+    color: var(--ink);
+}
+
+.screen .avatar-initials.winner-photo {
+    background: var(--sunken);
+    color: var(--ink-2);
+    box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.screen-footer {
+    border-top: 2px solid var(--ink);
+    color: var(--muted);
+}
+
+.screen-join-code {
+    color: var(--ink);
+}
+
+.screen-join a {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.screen-qr {
+    border: 1px solid var(--line);
+    border-radius: 2px;
+}
+
+/* --------------------------------------------------- Écran d'ouverture */
+
+.splash {
+    background: var(--bg);
+    color: var(--ink);
+}
+
+.splash-card {
+    width: min(560px, 100%);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 6px solid var(--brand);
+    border-radius: var(--radius);
+    padding: clamp(1.6rem, 1rem + 3vw, 2.8rem);
+    animation: none;
+}
+
+.splash-logo {
+    box-shadow: none;
+    padding: 0;
+    width: min(240px, 70%);
+}
+
+.splash-eyebrow {
+    color: var(--muted);
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: .95rem;
+}
+
+.splash-title {
+    font-family: var(--font);
+    font-weight: 700;
+    color: var(--ink);
+    font-size: clamp(1.45rem, 1.15rem + 1.3vw, 1.95rem);
+    letter-spacing: -.01em;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.splash-credit {
+    color: var(--muted);
+}
+
+.splash-names li {
+    color: var(--ink);
+    letter-spacing: .01em;
+}
+
+.splash-names .splash-and {
+    color: var(--muted);
+}
+
+.splash .btn {
+    background: var(--brand);
+    color: #fff;
+}
+
+.splash .btn:hover {
+    background: var(--brand-700);
+}
+
+.splash-hint {
+    color: var(--faint);
+}
+
+/* Proclamation sobre : pas de reflet ni d'entrée animée par élément. */
+.winner::after,
+.screen .winner::after {
+    display: none;
+}
+
+.winner.is-revealed .winner-photo,
+.winner.is-revealed .winner-label,
+.winner.is-revealed .winner-name,
+.winner.is-revealed .winner-score,
+.winner.is-revealed .winner-note {
+    animation: none;
+}
+
+.screen .winner-label {
+    color: var(--brand);
+}
+
+.screen .winner-name {
+    color: var(--ink);
+}
+
+.screen .winner-score,
+.screen .winner-note {
+    color: var(--ink-2);
+}
