@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Vote AIMS — aperçu de l'interface</title>
-    <link rel="stylesheet" href="css/aims.css?v=20261111g">
+    <link rel="stylesheet" href="css/aims.css?v=20261111h">
     <style>
         /* Habillage propre à l'aperçu : n'existe pas dans le projet Laravel. */
         .preview-bar {
@@ -265,7 +265,7 @@
             </div>
             <div class="steps">
                 <div class="step"><div class="step-num">1</div><h3>Saisir le code</h3><p>Le code de six caractères est projeté en salle ou communiqué par l'administration.</p></div>
-                <div class="step"><div class="step-num">2</div><h3>Vérifier son adresse</h3><p>Seule une adresse en …senegal.org donne accès aux bulletins ; toute autre adresse est refusée.</p></div>
+                <div class="step"><div class="step-num">2</div><h3>Vérifier son adresse</h3><p>Seule une adresse en @aims-senegal.org donne accès aux bulletins ; toute autre adresse est refusée.</p></div>
                 <div class="step"><div class="step-num">3</div><h3>Voter pour chaque scrutin</h3><p>Un bulletin par scrutin : Academic, Health, Online et Logistics. Le vote blanc est possible.</p></div>
                 <div class="step"><div class="step-num">4</div><h3>Consulter les résultats</h3><p>Les résultats sont mis à jour à chaque bulletin. À la clôture, le candidat élu est proclamé.</p></div>
             </div>
@@ -281,7 +281,7 @@
             <div class="split split-rev" style="margin-top:0">
                 <div class="card">
                     <ul class="points">
-                        <li><span class="point-check">&#10003;</span><span><b>Seules les adresses …senegal.org votent</b><span>Toute autre adresse est refusée avant même d'accéder aux bulletins.</span></span></li>
+                        <li><span class="point-check">&#10003;</span><span><b>Seules les adresses @aims-senegal.org votent</b><span>Toute autre adresse est refusée avant même d'accéder aux bulletins.</span></span></li>
                         <li><span class="point-check">&#10003;</span><span><b>Un seul bulletin par personne et par scrutin</b><span>Votre adresse est inscrite sur la liste d'émargement : un second vote au même scrutin est refusé.</span></span></li>
                         <li><span class="point-check">&#10003;</span><span><b>Le bulletin n'est pas relié à l'adresse</b><span>La liste d'émargement indique seulement <i>qui</i> a voté ; les bulletins ne portent aucune adresse.</span></span></li>
                     </ul>
@@ -315,7 +315,7 @@
                 <p class="lead">Quatre scrutins : Academic, Health, Online et Logistics. Un bulletin par scrutin, vote blanc autorisé.</p>
             </div>
 
-            <!-- Rendu par js/scrutins.js : seules les adresses …senegal.org sont acceptées. -->
+            <!-- Rendu par js/scrutins.js : seules les adresses @aims-senegal.org sont acceptées. -->
             <div data-scrutins-email></div>
         </div>
     </section>
@@ -576,12 +576,14 @@
     Le choix de chaque votant reste secret : les bulletins ne portent aucune adresse email.
 </footer>
 
-<script src="js/ballot.js?v=20261111g"></script>
-<script src="js/scrutins.js?v=20261111g"></script>
-<script src="js/live.js?v=20261111g"></script>
-<script src="js/chart.js?v=20261111g"></script>
-<script src="js/qr.js?v=20261111g"></script>
-<script src="js/i18n.js?v=20261111g"></script>
+<script src="js/ballot.js?v=20261111h"></script>
+<script src="js/scrutins.js?v=20261111h"></script>
+<script src="js/live.js?v=20261111h"></script>
+<script src="js/chart.js?v=20261111h"></script>
+<script src="js/qr.js?v=20261111h"></script>
+<script src="js/i18n.js?v=20261111h"></script>
+<script src="js/firebase-config.js?v=20261111h"></script>
+<script type="module" src="js/cloud.js?v=20261111h"></script>
 <script>
     (function () {
         'use strict';

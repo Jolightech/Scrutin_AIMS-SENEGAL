@@ -17,7 +17,7 @@
     var VOTER_SESSION = 'aims.vote.voter';     // adresse verifiee (sessionStorage)
     var ADMIN_SESSION = 'aims.vote.admin';     // administration deverrouillee (sessionStorage)
     var DEFAULT_ADMIN_CODE = 'AIMS-ADMIN-2026'; // code secret initial, modifiable dans l'administration
-    var EMAIL_DOMAIN = 'senegal.org';           // seules les adresses ...senegal.org peuvent voter
+    var EMAIL_DOMAIN = 'aims-senegal.org';      // seules les adresses ...@aims-senegal.org peuvent voter (cf. firestore.rules)
 
     /* ----------------------------------------------------- types de scrutin */
     var TYPES = [
@@ -141,8 +141,8 @@
     function emailValid(email) {
         var value = String(email || '').trim().toLowerCase();
 
-        // prenom.nom@aims-senegal.org, x@senegal.org, x@etudiants.aims-senegal.org
-        return /^[a-z0-9._%+-]+@([a-z0-9-]+\.)*[a-z0-9-]*senegal\.org$/.test(value);
+        // prenom.nom@aims-senegal.org ou x@etudiants.aims-senegal.org
+        return /^[a-z0-9._%+-]+@([a-z0-9-]+\.)*aims-senegal\.org$/.test(value);
     }
 
     function session(key, value) {
@@ -190,6 +190,10 @@
     }
 
     function adminUnlocked() {
+        if (online()) {
+            return window.VoteCloud.isAdmin();
+        }
+
         return session(ADMIN_SESSION) === data.adminHash;
     }
 
@@ -280,6 +284,15 @@
         } catch (error) {
             /* quota depasse (photos trop lourdes) ou mode prive : on continue en memoire */
         }
+
+        // Mode en ligne (js/cloud.js) : envoi des changements à Firebase.
+        if (online()) {
+            window.VoteCloud.sync(data);
+        }
+    }
+
+    function online() {
+        return !!(window.VoteCloud && window.VoteCloud.active());
     }
 
     var data = load();
@@ -373,7 +386,7 @@
         root.innerHTML = '<div class="card">'
             + '<h2>Vérifier votre adresse</h2>'
             + '<p class="muted" style="font-size:.98rem">Seules les adresses institutionnelles se terminant par '
-            + '<strong>…' + esc(EMAIL_DOMAIN) + '</strong> peuvent voter. Toute autre adresse est refusée. '
+            + '<strong>@' + esc(EMAIL_DOMAIN) + '</strong> peuvent voter. Toute autre adresse est refusée. '
             + 'Votre adresse atteste de votre participation (un bulletin par scrutin) ; '
             + 'votre choix, lui, n\'est jamais relié à votre adresse.</p>'
             + '<form data-email-form onsubmit="return false">'
@@ -384,7 +397,7 @@
             + (emailError ? ' aria-invalid="true" aria-describedby="voter-email-msg"' : '') + '>'
             + (emailError
                 ? '<div class="error" id="voter-email-msg">' + esc(emailError) + '</div>'
-                : '<div class="help">Adresses acceptées : …' + esc(EMAIL_DOMAIN) + '</div>')
+                : '<div class="help">Adresses acceptées : @' + esc(EMAIL_DOMAIN) + '</div>')
             + '</div>'
             + '<button class="btn btn-lg btn-block" type="submit">Continuer vers les bulletins</button>'
             + '</form>'
@@ -398,12 +411,16 @@
         if (!value) {
             emailError = 'Saisissez votre adresse email institutionnelle.';
         } else if (!emailValid(value)) {
-            emailError = 'Adresse refusée : seules les adresses se terminant par …' + EMAIL_DOMAIN + ' sont autorisées à voter.';
+            emailError = 'Adresse refusée : seules les adresses se terminant par @' + EMAIL_DOMAIN + ' sont autorisées à voter.';
         } else {
             emailError = null;
             session(VOTER_SESSION, value);
             voterRecord(true);
             save();
+
+            if (online()) {
+                window.VoteCloud.checkVoter(value);
+            }
             renderAll();
             navigate('bulletin');
 
@@ -471,7 +488,7 @@
                 + '<li>Bulletin</li><li>Reçu</li></ol>'
                 + '<div class="card center" style="max-width:660px; margin-inline:auto">'
                 + '<h2 style="font-size:1.45rem">Vérifiez d\'abord votre adresse</h2>'
-                + '<p class="muted" style="margin-bottom:1.2rem">Seules les adresses se terminant par …' + esc(EMAIL_DOMAIN)
+                + '<p class="muted" style="margin-bottom:1.2rem">Seules les adresses se terminant par @' + esc(EMAIL_DOMAIN)
                 + ' peuvent accéder aux bulletins.</p>'
                 + '<a class="btn btn-lg" href="#email" data-goto="email">Saisir mon adresse</a></div>';
 
@@ -792,16 +809,17 @@
             + '<div class="card-head"><div><h2>Sécurité et réinitialisation</h2>'
             + '<p class="card-sub">Le code secret protège cette page ; la réinitialisation efface tout le tableau de bord.</p></div>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-logout>Se déconnecter</button></div>'
-            + '<form data-admin-code-form onsubmit="return false">'
-            + '<div class="grid grid-2" style="gap:0 1.1rem">'
-            + '<div class="field"><label class="label" for="admin-code-current">Code secret actuel</label>'
-            + '<input class="input" id="admin-code-current" name="current" type="password" autocomplete="current-password"></div>'
-            + '<div class="field"><label class="label" for="admin-code-next">Nouveau code secret</label>'
-            + '<input class="input" id="admin-code-next" name="next" type="password" autocomplete="new-password" minlength="6">'
-            + '<div class="help">Six caractères minimum.</div></div>'
-            + '</div>'
-            + '<button class="btn btn-ghost" type="submit">Changer le code secret</button>'
-            + '</form>'
+            + (online() ? '<p class="small muted">Connecté avec Google : ' + esc((window.VoteCloud.user() || {}).email || '') + '.</p>' : ''
+                + '<form data-admin-code-form onsubmit="return false">'
+                + '<div class="grid grid-2" style="gap:0 1.1rem">'
+                + '<div class="field"><label class="label" for="admin-code-current">Code secret actuel</label>'
+                + '<input class="input" id="admin-code-current" name="current" type="password" autocomplete="current-password"></div>'
+                + '<div class="field"><label class="label" for="admin-code-next">Nouveau code secret</label>'
+                + '<input class="input" id="admin-code-next" name="next" type="password" autocomplete="new-password" minlength="6">'
+                + '<div class="help">Six caractères minimum.</div></div>'
+                + '</div>'
+                + '<button class="btn btn-ghost" type="submit">Changer le code secret</button>'
+                + '</form>')
             + '<hr class="sep">'
             + '<div class="row">'
             + '<button class="btn btn-danger" type="button" data-admin-clear-indicators>Effacer tous les indicateurs</button>'
@@ -823,6 +841,22 @@
 
     function renderAdminLock(root) {
         all('[data-admin-stat]').forEach(function (node) { node.textContent = '—'; });
+
+        // Mode en ligne : connexion avec un compte Google administrateur.
+        if (online()) {
+            var who = window.VoteCloud.user();
+
+            root.innerHTML = '<div class="card" style="max-width:520px; margin:1.1rem auto 0">'
+                + '<h2>Accès réservé à l\'administrateur</h2>'
+                + (who
+                    ? '<div class="alert alert-error">Le compte ' + esc(who.email || '') + ' n\'est pas administrateur de cette plateforme.</div>'
+                    : '<p class="muted" style="font-size:.98rem">Connectez-vous avec le compte Google administrateur pour gérer les scrutins, les candidats et consulter la liste des votants.</p>')
+                + '<button class="btn btn-lg btn-block" type="button" data-cloud-signin>' + (who ? 'Utiliser un autre compte Google' : 'Se connecter avec Google') + '</button>'
+                + (who ? '<button class="btn btn-ghost btn-block" type="button" data-admin-logout style="margin-top:.6rem">Se déconnecter</button>' : '')
+                + '</div>';
+
+            return;
+        }
 
         root.innerHTML = '<div class="card" style="max-width:520px; margin:1.1rem auto 0">'
             + '<h2>Accès réservé à l\'administrateur</h2>'
@@ -1202,8 +1236,19 @@
             return;
         }
 
+        hit = target.closest('[data-cloud-signin]');
+        if (hit && online()) {
+            window.VoteCloud.signIn();
+
+            return;
+        }
+
         hit = target.closest('[data-admin-logout]');
         if (hit) {
+            if (online()) {
+                window.VoteCloud.signOut();
+            }
+
             session(ADMIN_SESSION, null);
             renderAdmin();
 
@@ -1430,6 +1475,18 @@
         types: TYPES,
         data: function () { return data; },
         render: renderAll,
+        // Utilisé par js/cloud.js : remplace les données par celles du serveur.
+        applyRemote: function (change) {
+            change(data);
+
+            try {
+                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (error) {
+                /* rien */
+            }
+
+            renderAll();
+        },
         voteLink: voteLink,
         access: access
     };
