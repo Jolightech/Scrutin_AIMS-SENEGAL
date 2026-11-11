@@ -328,7 +328,7 @@
                 + '<li><b>' + s.max + '</b> ' + (s.max > 1 ? 'choix par votant' : 'choix par votant') + '</li>'
                 + '</ul>'
                 + '<div class="row">' + action
-                + '<a class="btn btn-ghost" href="#resultats" data-goto="resultats">Suivre en direct</a>'
+                + '<a class="btn btn-ghost" href="#resultats" data-goto="resultats" data-results-type="' + type.key + '">Suivre en direct</a>'
                 + '</div>'
                 + '</article>';
         }).join('');
@@ -678,6 +678,8 @@
             + '<span class="code-pill"><small>code</small> ' + esc(type.code) + '</span></div>'
             + '<div style="flex:1; min-width:260px"><label class="label" for="admin-link-' + type.key + '">Lien direct</label>'
             + '<input class="input mono" id="admin-link-' + type.key + '" type="text" readonly value="' + esc(voteLink(type.key)) + '"></div>'
+            + '<div><label class="label" for="admin-expected">Inscrits</label>'
+            + '<input class="input" id="admin-expected" type="number" min="1" step="1" style="width:7rem" data-admin-expected value="' + (parseInt(s.expected, 10) || 40) + '"></div>'
             + '<div><label class="label" for="admin-max">Choix par votant</label>'
             + '<select class="select" id="admin-max" data-admin-max>'
             + [1, 2, 3].map(function (n) {
@@ -687,7 +689,7 @@
             + '</div>'
             + '<div class="row" style="margin-top:.9rem">'
             + '<button class="btn btn-ghost btn-sm" type="button" data-copy="' + esc(voteLink(type.key)) + '" data-copied="Lien copié">Copier le lien</button>'
-            + '<button class="btn btn-ghost btn-sm" type="button" data-goto="ecran">Vue vidéoprojecteur</button>'
+            + '<button class="btn btn-ghost btn-sm" type="button" data-goto="ecran" data-results-type="' + type.key + '">Vue vidéoprojecteur</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-export>Export CSV</button>'
             + '</div>'
             + '<hr class="sep">'
@@ -779,13 +781,13 @@
             + '<hr class="sep">'
             + '<div class="row">'
             + '<button class="btn btn-danger" type="button" data-admin-clear-indicators>Effacer tous les indicateurs</button>'
-            + '<button class="btn btn-danger" type="button" data-admin-reset-results>Réinitialiser les résultats</button>'
+            + '<button class="btn btn-danger" type="button" data-admin-reset-results>Réinitialiser les résultats : ' + esc(type.short) + '</button>'
             + '<button class="btn btn-danger" type="button" data-admin-reset-all>Réinitialiser tout le tableau de bord</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset-votes>Effacer uniquement les bulletins et les votants</button>'
             + '<button class="btn btn-ghost btn-sm" type="button" data-admin-reset>Recharger les données de démonstration</button>'
             + '</div>'
             + '<p class="small muted" style="margin:.8rem 0 0">« Effacer tous les indicateurs » remet tous les compteurs à zéro : bulletins, voix, votes blancs, participation, graphiques et élu(e) dans les onglets Accueil, Résultats, Vidéoprojecteur et Administration, pour les quatre scrutins. Les candidats sont conservés.</p>'
-            + '<p class="small muted" style="margin:.4rem 0 0">« Réinitialiser les résultats » remet à zéro l\'onglet Résultats et la vue vidéoprojecteur (bulletins, voix, graphiques, élu(e)). Candidats et votants sont conservés.</p>'
+            + '<p class="small muted" style="margin:.4rem 0 0">« Réinitialiser les résultats » efface les bulletins du seul scrutin choisi (' + esc(type.label) + ') : ses votants pourront revoter à ce scrutin. Les candidats sont conservés.</p>'
             + '<p class="small muted" style="margin:.4rem 0 0">La réinitialisation complète supprime les candidats, les bulletins et la liste des votants des quatre scrutins, et rouvre chaque scrutin. Le code secret est conservé.</p>'
             + '</div>';
 
@@ -1196,11 +1198,6 @@
                 data.voters = {};
                 session(VOTER_SESSION, null);
                 save();
-
-                if (window.PreviewResults) {
-                    window.PreviewResults.reset();
-                }
-
                 notice = { kind: 'success', text: 'Tous les indicateurs ont été remis à zéro.' };
                 renderAll();
             }
@@ -1210,12 +1207,16 @@
 
         hit = target.closest('[data-admin-reset-results]');
         if (hit) {
-            if (window.confirm('Réinitialiser tous les résultats ?\n\nL\'onglet Résultats et la vue vidéoprojecteur repartent de zéro : bulletins, voix, graphiques et élu(e).')) {
-                if (window.PreviewResults) {
-                    window.PreviewResults.reset();
-                }
-                notice = { kind: 'success', text: 'Les résultats ont été remis à zéro.' };
-                renderAdmin();
+            var resetType = typeOf(currentAdmin);
+
+            if (window.confirm('Réinitialiser les résultats de ' + resetType.label + ' ?\n\nTous les bulletins de ce scrutin seront supprimés et ses votants pourront revoter. Les autres scrutins ne changent pas.')) {
+                scrutin(resetType.key).ballots = [];
+                Object.keys(data.voters).forEach(function (id) {
+                    delete data.voters[id].scrutins[resetType.key];
+                });
+                notice = { kind: 'success', text: 'Résultats de ' + resetType.label + ' remis à zéro.' };
+                save();
+                renderAll();
             }
 
             return;
@@ -1326,6 +1327,16 @@
             return;
         }
 
+        var expected = event.target.closest('[data-admin-expected]');
+
+        if (expected) {
+            scrutin(currentAdmin).expected = Math.max(1, parseInt(expected.value, 10) || 40);
+            save();
+            renderAll();
+
+            return;
+        }
+
         var max = event.target.closest('[data-admin-max]');
 
         if (max) {
@@ -1345,7 +1356,19 @@
         if (window.PreviewLocks) {
             window.PreviewLocks();
         }
+
+        if (window.PreviewResults && window.PreviewResults.refresh) {
+            window.PreviewResults.refresh();
+        }
     }
+
+    // Bulletin ou réglage enregistré dans un autre onglet du même navigateur.
+    window.addEventListener('storage', function (event) {
+        if (event.key === STORAGE_KEY) {
+            data = load();
+            renderAll();
+        }
+    });
 
     /* Parcours obligatoire : Vérification -> Bulletins -> Résultats.
        Renvoie null si l'écran est accessible, sinon l'écran à faire avant

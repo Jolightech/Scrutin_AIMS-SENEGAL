@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Vote AIMS — aperçu de l'interface</title>
-    <link rel="stylesheet" href="css/aims.css?v=20261111">
+    <link rel="stylesheet" href="css/aims.css?v=20261111b">
     <style>
         /* Habillage propre à l'aperçu : n'existe pas dans le projet Laravel. */
         .preview-bar {
@@ -183,7 +183,7 @@
 
 <div class="preview-bar">
     <div class="preview-bar-inner">
-        <span class="preview-tag">Aperçu statique, données fictives</span>
+        <span class="preview-tag">Données enregistrées dans ce navigateur</span>
         <div class="preview-tabs">
             <div class="segmented" role="tablist" aria-label="Écrans de l'aperçu">
                 <button role="tab" aria-selected="true" data-panel="accueil">Accueil</button>
@@ -194,7 +194,6 @@
                 <button role="tab" aria-selected="false" data-panel="admin">Administration</button>
             </div>
         </div>
-        <button class="btn btn-ghost btn-sm" type="button" data-demo-replay title="Relancer le scrutin de démonstration">Rejouer</button>
     </div>
 </div>
 
@@ -248,7 +247,7 @@
                             <span class="float-value">6</span>
                         </div>
                     </div>
-                    <p class="float-foot">Mise à jour toutes les 2 secondes, sans recharger la page.</p>
+                    <p class="float-foot"><span data-float-type>Focal Point Academic</span>, mis à jour à chaque bulletin.</p>
                 </div>
             </div>
         </section>
@@ -336,14 +335,18 @@
     <!-- ==================================================== 4. Résultats -->
     <section class="panel" id="panel-resultats" hidden>
         <div class="page-head">
+            <div class="results-picker">
+                <span class="label" id="results-type-label">Type de scrutin</span>
+                <div class="segmented" role="tablist" aria-labelledby="results-type-label" data-results-types></div>
+            </div>
             <div class="row" style="margin-bottom:.7rem">
                 <span class="badge">Focal Point</span>
                 <span class="badge badge-open" data-demo-status>Ouvert</span>
             </div>
-            <h1>Focal Point Academic — Promotion 2026</h1>
+            <h1 data-results-title>Focal Point Academic, promotion 2026</h1>
             <div class="row" style="margin-top:.7rem">
                 <span class="live-dot" aria-hidden="true"></span>
-                <span class="muted" data-demo-live aria-live="polite">Mise à jour automatique toutes les 2 secondes</span>
+                <span class="muted" data-demo-live aria-live="polite">En attente des premiers bulletins.</span>
                 <span class="spacer row">
                     <button class="btn btn-ghost btn-sm" type="button" data-goto="ecran">Vue vidéoprojecteur</button>
                 </span>
@@ -354,12 +357,12 @@
             <div class="stat stat-brand">
                 <div class="stat-value" data-demo-stat="ballots">27</div>
                 <div class="stat-label">Bulletins reçus</div>
-                <div class="stat-foot">sur 40 inscrits</div>
+                <div class="stat-foot" data-demo-stat="expected">sur 40 inscrits</div>
             </div>
             <div class="stat">
                 <div class="stat-value" data-demo-stat="votes">25</div>
                 <div class="stat-label">Voix exprimées</div>
-                <div class="stat-foot">réparties entre 4 candidats</div>
+                <div class="stat-foot" data-demo-stat="spread">réparties entre 4 candidats</div>
             </div>
             <div class="stat">
                 <div class="stat-value" data-demo-stat="abstentions">2</div>
@@ -451,6 +454,10 @@
                 Page plein écran à projeter pendant le dépouillement en direct :
                 chiffres lisibles du fond de la salle, aucun élément d'interface.
             </p>
+            <div class="results-picker">
+                <span class="label" id="screen-type-label">Scrutin à projeter</span>
+                <div class="segmented" role="tablist" aria-labelledby="screen-type-label" data-results-types></div>
+            </div>
             <div class="row" style="margin-top:1rem">
                 <button class="btn btn-ghost btn-sm" type="button" data-fullscreen>Afficher en plein écran</button>
             </div>
@@ -460,7 +467,7 @@
             <div class="screen-wrap">
                 <div class="screen-head">
                     <div>
-                        <div class="eyebrow">AIMS Sénégal, Focal Point Academic</div>
+                        <div class="eyebrow" data-screen-type>AIMS Sénégal, Focal Point Academic</div>
                         <h1>Promotion 2026</h1>
                     </div>
                     <div class="screen-stats">
@@ -505,8 +512,8 @@
                     <span data-demo-live-short>Résultats en direct</span>
                     <div class="screen-join">
                         <div>
-                            Pour voter : scannez le QR code<br><a href="https://jolightech.github.io/Scrutin_AIMS-SENEGAL/?scrutin=focal-point-academic#email" data-vote-link="academic">jolightech.github.io/Scrutin_AIMS-SENEGAL</a>
-                            <span class="screen-join-code">ACAD26</span>
+                            Pour voter : scannez le QR code<br><a href="https://jolightech.github.io/Scrutin_AIMS-SENEGAL/?scrutin=focal-point-academic#email" data-vote-link>jolightech.github.io/Scrutin_AIMS-SENEGAL</a>
+                            <span class="screen-join-code" data-screen-code>ACAD26</span>
                         </div>
                         <svg class="screen-qr" viewBox="-2 -2 45 45" role="img" aria-label="QR code du lien de vote : https://jolightech.github.io/Scrutin_AIMS-SENEGAL/?scrutin=focal-point-academic#email" shape-rendering="crispEdges"><path fill="#1c1314" d="M0 0h7v1h-7zM10 0h2v1h-2zM14 0h2v1h-2zM18 0h3v1h-3zM23 0h1v1h-1zM28 0h5v1h-5zM34 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM27 1h3v1h-3zM32 1h1v1h-1zM34 1h1v1h-1zM40 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM15 2h1v1h-1zM20 2h1v1h-1zM24 2h1v1h-1zM26 2h1v1h-1zM28 2h4v1h-4zM34 2h1v1h-1zM36 2h3v1h-3zM40 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM12 3h3v1h-3zM16 3h1v1h-1zM18 3h5v1h-5zM24 3h1v1h-1zM28 3h1v1h-1zM34 3h1v1h-1zM36 3h3v1h-3zM40 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h3v1h-3zM14 4h3v1h-3zM19 4h1v1h-1zM25 4h8v1h-8zM34 4h1v1h-1zM36 4h3v1h-3zM40 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM13 5h1v1h-1zM20 5h1v1h-1zM22 5h1v1h-1zM24 5h1v1h-1zM27 5h4v1h-4zM32 5h1v1h-1zM34 5h1v1h-1zM40 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM34 6h7v1h-7zM8 7h1v1h-1zM10 7h2v1h-2zM13 7h2v1h-2zM19 7h3v1h-3zM23 7h1v1h-1zM27 7h2v1h-2zM30 7h1v1h-1zM0 8h1v1h-1zM2 8h5v1h-5zM9 8h3v1h-3zM17 8h1v1h-1zM19 8h2v1h-2zM22 8h5v1h-5zM29 8h1v1h-1zM31 8h1v1h-1zM34 8h5v1h-5zM0 9h1v1h-1zM2 9h1v1h-1zM4 9h2v1h-2zM7 9h4v1h-4zM12 9h1v1h-1zM15 9h7v1h-7zM23 9h2v1h-2zM26 9h1v1h-1zM28 9h5v1h-5zM34 9h1v1h-1zM36 9h1v1h-1zM38 9h3v1h-3zM0 10h1v1h-1zM5 10h4v1h-4zM10 10h1v1h-1zM13 10h2v1h-2zM16 10h2v1h-2zM21 10h2v1h-2zM24 10h2v1h-2zM27 10h3v1h-3zM32 10h1v1h-1zM34 10h1v1h-1zM0 11h2v1h-2zM4 11h1v1h-1zM7 11h2v1h-2zM10 11h1v1h-1zM14 11h1v1h-1zM16 11h1v1h-1zM21 11h2v1h-2zM24 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM30 11h4v1h-4zM35 11h1v1h-1zM37 11h1v1h-1zM1 12h1v1h-1zM3 12h7v1h-7zM11 12h3v1h-3zM16 12h2v1h-2zM19 12h1v1h-1zM21 12h3v1h-3zM25 12h1v1h-1zM27 12h1v1h-1zM31 12h3v1h-3zM35 12h1v1h-1zM37 12h2v1h-2zM0 13h3v1h-3zM5 13h1v1h-1zM8 13h1v1h-1zM11 13h1v1h-1zM14 13h1v1h-1zM17 13h1v1h-1zM20 13h2v1h-2zM24 13h2v1h-2zM27 13h2v1h-2zM33 13h1v1h-1zM35 13h4v1h-4zM40 13h1v1h-1zM0 14h1v1h-1zM2 14h1v1h-1zM4 14h5v1h-5zM10 14h2v1h-2zM13 14h2v1h-2zM18 14h2v1h-2zM30 14h1v1h-1zM32 14h2v1h-2zM35 14h1v1h-1zM37 14h2v1h-2zM0 15h1v1h-1zM3 15h2v1h-2zM7 15h1v1h-1zM9 15h6v1h-6zM19 15h4v1h-4zM24 15h1v1h-1zM26 15h1v1h-1zM28 15h1v1h-1zM34 15h1v1h-1zM36 15h1v1h-1zM39 15h2v1h-2zM1 16h4v1h-4zM6 16h1v1h-1zM9 16h1v1h-1zM12 16h1v1h-1zM14 16h4v1h-4zM19 16h1v1h-1zM22 16h1v1h-1zM24 16h3v1h-3zM29 16h1v1h-1zM33 16h1v1h-1zM35 16h1v1h-1zM38 16h2v1h-2zM0 17h1v1h-1zM3 17h1v1h-1zM8 17h1v1h-1zM10 17h2v1h-2zM13 17h9v1h-9zM23 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM30 17h3v1h-3zM34 17h4v1h-4zM39 17h2v1h-2zM0 18h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM9 18h2v1h-2zM12 18h4v1h-4zM17 18h1v1h-1zM20 18h2v1h-2zM25 18h3v1h-3zM30 18h1v1h-1zM32 18h2v1h-2zM36 18h2v1h-2zM0 19h3v1h-3zM4 19h2v1h-2zM7 19h2v1h-2zM10 19h2v1h-2zM15 19h4v1h-4zM20 19h3v1h-3zM25 19h1v1h-1zM27 19h1v1h-1zM31 19h4v1h-4zM36 19h2v1h-2zM1 20h1v1h-1zM6 20h1v1h-1zM13 20h1v1h-1zM15 20h1v1h-1zM21 20h1v1h-1zM23 20h2v1h-2zM26 20h2v1h-2zM30 20h2v1h-2zM37 20h4v1h-4zM0 21h2v1h-2zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h5v1h-5zM15 21h1v1h-1zM18 21h2v1h-2zM21 21h2v1h-2zM27 21h3v1h-3zM31 21h2v1h-2zM34 21h7v1h-7zM1 22h1v1h-1zM4 22h1v1h-1zM6 22h6v1h-6zM13 22h2v1h-2zM17 22h2v1h-2zM22 22h1v1h-1zM26 22h4v1h-4zM34 22h4v1h-4zM0 23h1v1h-1zM2 23h1v1h-1zM7 23h1v1h-1zM9 23h3v1h-3zM14 23h1v1h-1zM18 23h1v1h-1zM20 23h3v1h-3zM27 23h1v1h-1zM32 23h1v1h-1zM37 23h1v1h-1zM0 24h3v1h-3zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h2v1h-2zM16 24h4v1h-4zM22 24h1v1h-1zM24 24h3v1h-3zM29 24h1v1h-1zM38 24h1v1h-1zM10 25h2v1h-2zM18 25h4v1h-4zM23 25h1v1h-1zM25 25h1v1h-1zM28 25h4v1h-4zM33 25h5v1h-5zM39 25h2v1h-2zM1 26h2v1h-2zM4 26h4v1h-4zM12 26h1v1h-1zM15 26h1v1h-1zM17 26h2v1h-2zM22 26h1v1h-1zM26 26h4v1h-4zM32 26h2v1h-2zM35 26h2v1h-2zM2 27h4v1h-4zM7 27h2v1h-2zM10 27h4v1h-4zM16 27h1v1h-1zM20 27h5v1h-5zM26 27h2v1h-2zM31 27h3v1h-3zM37 27h1v1h-1zM40 27h1v1h-1zM0 28h1v1h-1zM6 28h1v1h-1zM10 28h1v1h-1zM16 28h2v1h-2zM20 28h3v1h-3zM24 28h1v1h-1zM26 28h1v1h-1zM28 28h1v1h-1zM31 28h1v1h-1zM33 28h1v1h-1zM37 28h3v1h-3zM0 29h4v1h-4zM7 29h1v1h-1zM11 29h4v1h-4zM18 29h1v1h-1zM21 29h1v1h-1zM25 29h3v1h-3zM29 29h2v1h-2zM32 29h2v1h-2zM35 29h4v1h-4zM40 29h1v1h-1zM0 30h1v1h-1zM3 30h1v1h-1zM5 30h3v1h-3zM9 30h2v1h-2zM12 30h1v1h-1zM14 30h5v1h-5zM20 30h2v1h-2zM23 30h6v1h-6zM31 30h1v1h-1zM33 30h3v1h-3zM37 30h2v1h-2zM0 31h1v1h-1zM3 31h1v1h-1zM7 31h3v1h-3zM11 31h3v1h-3zM15 31h1v1h-1zM21 31h3v1h-3zM27 31h1v1h-1zM30 31h5v1h-5zM36 31h2v1h-2zM40 31h1v1h-1zM0 32h1v1h-1zM6 32h4v1h-4zM11 32h2v1h-2zM16 32h3v1h-3zM22 32h16v1h-16zM39 32h1v1h-1zM8 33h3v1h-3zM12 33h2v1h-2zM15 33h2v1h-2zM18 33h3v1h-3zM23 33h2v1h-2zM26 33h1v1h-1zM28 33h3v1h-3zM32 33h1v1h-1zM36 33h2v1h-2zM39 33h2v1h-2zM0 34h7v1h-7zM11 34h1v1h-1zM13 34h1v1h-1zM16 34h1v1h-1zM18 34h1v1h-1zM22 34h1v1h-1zM24 34h1v1h-1zM27 34h3v1h-3zM31 34h2v1h-2zM34 34h1v1h-1zM36 34h1v1h-1zM0 35h1v1h-1zM6 35h1v1h-1zM8 35h3v1h-3zM15 35h1v1h-1zM20 35h1v1h-1zM26 35h7v1h-7zM36 35h2v1h-2zM39 35h2v1h-2zM0 36h1v1h-1zM2 36h3v1h-3zM6 36h1v1h-1zM8 36h3v1h-3zM15 36h1v1h-1zM18 36h1v1h-1zM21 36h2v1h-2zM24 36h1v1h-1zM32 36h5v1h-5zM38 36h1v1h-1zM40 36h1v1h-1zM0 37h1v1h-1zM2 37h3v1h-3zM6 37h1v1h-1zM8 37h4v1h-4zM13 37h3v1h-3zM20 37h1v1h-1zM26 37h5v1h-5zM32 37h2v1h-2zM35 37h1v1h-1zM0 38h1v1h-1zM2 38h3v1h-3zM6 38h1v1h-1zM8 38h1v1h-1zM10 38h1v1h-1zM14 38h5v1h-5zM20 38h2v1h-2zM26 38h3v1h-3zM31 38h1v1h-1zM33 38h5v1h-5zM0 39h1v1h-1zM6 39h1v1h-1zM9 39h4v1h-4zM14 39h4v1h-4zM21 39h4v1h-4zM26 39h2v1h-2zM30 39h3v1h-3zM36 39h2v1h-2zM39 39h1v1h-1zM0 40h7v1h-7zM8 40h2v1h-2zM11 40h1v1h-1zM13 40h1v1h-1zM16 40h2v1h-2zM20 40h1v1h-1zM22 40h1v1h-1zM24 40h4v1h-4zM29 40h1v1h-1zM31 40h1v1h-1zM35 40h2v1h-2zM38 40h1v1h-1z"/></svg>
                     </div>
@@ -553,10 +560,11 @@
     Le choix de chaque votant reste secret : les bulletins ne portent aucune adresse email.
 </footer>
 
-<script src="js/ballot.js?v=20261111"></script>
-<script src="js/scrutins.js?v=20261111"></script>
-<script src="js/live.js?v=20261111"></script>
-<script src="js/chart.js?v=20261111"></script>
+<script src="js/ballot.js?v=20261111b"></script>
+<script src="js/scrutins.js?v=20261111b"></script>
+<script src="js/live.js?v=20261111b"></script>
+<script src="js/chart.js?v=20261111b"></script>
+<script src="js/qr.js?v=20261111b"></script>
 <script>
     (function () {
         'use strict';
@@ -694,189 +702,240 @@
             }
         });
 
-        /* ------------------------------- scrutin de démonstration, animé ---- */
-        var CANDIDATES = [
-            { id: 1, name: 'Aminata Diallo', initials: 'AD', slot: 1 },
-            { id: 2, name: 'Moussa Sow', initials: 'MS', slot: 2 },
-            { id: 3, name: 'Fatou Ndiaye', initials: 'FN', slot: 3 },
-            { id: 4, name: 'Ibrahima Faye', initials: 'IF', slot: 4 }
-        ];
+        /* -------------------------- résultats réels, par type de scrutin ---- */
+        var Scr = window.VoteScrutins;
+        var TYPES = Scr.types;
+        var live = window.VoteLive;
+        var QR = window.VoteQR || {};
 
-        var EXPECTED = 40;       // inscrits
-        var CLOSE_AT = 36;       // la démonstration clôt le scrutin à 36 bulletins
-        var BUCKET = 3;          // minutes par tranche
+        var current = (function () {
+            var match = /[?&]scrutin=([^&#]+)/.exec(window.location.search);
+            var wanted = match ? decodeURIComponent(match[1]).toLowerCase().replace(/^focal-point-/, '') : '';
+            var found = TYPES.filter(function (t) { return t.key === wanted; })[0];
 
-        /* Les 27 premiers bulletins, dans un ordre fixe (-1 = vote blanc), et
-           leur répartition par tranche de 3 minutes à partir de 14:05 :
-           l'aperçu démarre toujours sur le même état, 9 / 7 / 6 / 3 voix. */
-        var SEED_ORDER = [0, 1, 0, 2, 1, 0, 3, 2, 0, 1, -1, 2, 0, 1, 3, 0, 2, 1, 0, 2, -1, 1, 0, 3, 2, 1, 0];
-        var SEED_BUCKETS = [1, 2, 3, 4, 3, 2, 3, 2, 2, 1, 2, 1, 1];
+            return (found || TYPES[0]).key;
+        })();
 
-        var state;
-        var RESET_KEY = 'aims.vote.results.reset'; // résultats remis à zéro par l'administrateur
+        var containers = all('[data-demo-results]');
+        var rowsSig = null;
+        var lastVotes = {};
+        var winnerSig = null;
+        var state = null;
 
-        function storeReset(on) {
-            try {
-                if (on) {
-                    window.localStorage.setItem(RESET_KEY, String(Date.now()));
-                } else {
-                    window.localStorage.removeItem(RESET_KEY);
-                }
-            } catch (error) {
-                // stockage indisponible : la remise à zéro vaut pour cette page
-            }
+        function typeOf(key) {
+            return TYPES.filter(function (t) { return t.key === key; })[0] || TYPES[0];
         }
 
-        function wasReset() {
-            try {
-                return !!window.localStorage.getItem(RESET_KEY);
-            } catch (error) {
-                return false;
-            }
+        function initials(name) {
+            return String(name || '').trim().split(/\s+/).slice(0, 2)
+                .map(function (part) { return part.charAt(0).toUpperCase(); }).join('') || '?';
         }
 
-        /* Résultats à zéro : aucun bulletin, aucune voix, simulation arrêtée.
-           Le bouton « Rejouer » relance le scrutin de démonstration. */
-        function blank() {
-            var now = new Date();
+        function clock(time) {
+            var d = new Date(time);
 
-            state = {
-                votes: CANDIDATES.map(function () { return 0; }),
-                abstentions: 0,
-                ballots: 0,
-                minutes: now.getHours() * 60 + now.getMinutes(),
-                labels: [],
-                history: [],
-                inBucket: 0,
-                closed: false,
-                paused: true
-            };
-
-            state.labels.push(clock(state.minutes));
-            state.history.push(state.votes.slice());
+            return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
         }
 
-        function resetResults() {
-            all('[data-demo-winner]').forEach(function (slot) { slot.textContent = ''; });
-            blank();
-            storeReset(true);
-            renderAll(null);
-        }
-
-        function clock(minutes) {
-            return ('0' + (Math.floor(minutes / 60) % 24)).slice(-2) + ':' + ('0' + (minutes % 60)).slice(-2);
-        }
-
-        function seed() {
-            state = {
-                votes: CANDIDATES.map(function () { return 0; }),
-                abstentions: 0,
-                ballots: 0,
-                minutes: 14 * 60 + 2,
-                labels: [],
-                history: [],
-                inBucket: 0,
-                closed: false
-            };
-
-            // Point de départ à zéro, puis une ligne par tranche.
-            state.labels.push(clock(state.minutes));
-            state.history.push(state.votes.slice());
-
-            var cursor = 0;
-
-            SEED_BUCKETS.forEach(function (size) {
-                for (var i = 0; i < size; i++) {
-                    cast(SEED_ORDER[cursor++]);
-                }
-
-                closeBucket();
+        function compute(key) {
+            var s = Scr.data().scrutins[key];
+            var ballots = s.ballots.slice().sort(function (a, b) {
+                return new Date(a.at).getTime() - new Date(b.at).getTime();
             });
+            var votes = {};
+            var abstentions = 0;
 
-            // Le premier bulletin en direct ouvrira une nouvelle tranche.
-            state.inBucket = 3;
-        }
+            s.candidates.forEach(function (c) { votes[c.id] = 0; });
 
-        function cast(choice) {
-            state.ballots += 1;
+            ballots.forEach(function (ballot) {
+                var choices = ballot.choices || [];
 
-            if (choice < 0) {
-                state.abstentions += 1;
-            } else {
-                state.votes[choice] += 1;
-            }
-        }
+                if (ballot.blank || !choices.length) {
+                    abstentions += 1;
+                }
 
-        function closeBucket() {
-            state.minutes += BUCKET;
-            state.labels.push(clock(state.minutes));
-            state.history.push(state.votes.slice());
-            state.inBucket = 0;
-        }
-
-        function timeline() {
-            var last = state.history[state.history.length - 1];
+                choices.forEach(function (id) {
+                    if (id in votes) {
+                        votes[id] += 1;
+                    }
+                });
+            });
 
             return {
-                has_data: state.ballots > 0,
-                labels: state.labels,
-                folded: 0,
-                max: Math.max.apply(null, last),
-                series: CANDIDATES.map(function (candidate, index) {
-                    return {
-                        id: candidate.id,
-                        name: candidate.name,
-                        slot: candidate.slot,
-                        points: state.history.map(function (row) { return row[index]; })
-                    };
-                })
+                key: key,
+                type: typeOf(key),
+                status: s.status,
+                closed: s.status === 'closed',
+                candidates: s.candidates,
+                ballots: ballots,
+                votes: votes,
+                abstentions: abstentions,
+                expected: Math.max(parseInt(s.expected, 10) || 40, ballots.length, 1)
             };
         }
 
-        /* ------------------------------------------ lignes du classement ---- */
-        var containers = all('[data-demo-results]');
+        function sortedEntries(st) {
+            return st.candidates.map(function (c, index) {
+                return { id: c.id, name: c.name, index: index, votes: st.votes[c.id] || 0 };
+            }).sort(function (a, b) { return b.votes - a.votes || a.index - b.index; });
+        }
 
-        containers.forEach(function (container) {
-            CANDIDATES.forEach(function (candidate) {
-                var row = document.createElement('div');
-
-                row.className = 'result';
-                row.setAttribute('data-row', String(candidate.id));
-                row.innerHTML =
-                    '<span class="result-rank"></span>' +
-                    '<span class="avatar-initials avatar-sm" aria-hidden="true"></span>' +
-                    '<div class="result-body">' +
-                    '<div class="result-top">' +
-                    '<span class="result-name"><i class="result-key"></i><span data-name></span></span>' +
-                    '<span class="result-numbers"><span class="result-votes"></span> voix <span class="result-pct"></span></span>' +
-                    '</div>' +
-                    '<div class="track"><span class="track-fill"></span></div>' +
-                    '</div>';
-
-                row.querySelector('.avatar-initials').textContent = candidate.initials;
-                row.querySelector('[data-name]').textContent = candidate.name;
-                container.appendChild(row);
-                row.querySelector('.result-key').style.background =
-                    window.VoteChart.colorOf(container, candidate.slot);
+        /* Courbe : cumul des voix par tranche, de 1 minute à quelques minutes
+           selon la durée du vote (une douzaine de points au plus). */
+        function timeline(st) {
+            var series = st.candidates.map(function (c, index) {
+                return { id: c.id, name: c.name, slot: (index % 8) + 1, points: [] };
             });
+
+            if (!st.ballots.length || !series.length) {
+                return { has_data: false, labels: [], folded: 0, max: 0, series: series };
+            }
+
+            var times = st.ballots.map(function (b) { return new Date(b.at).getTime(); });
+            var start = times[0];
+            var end = times[times.length - 1];
+            var step = Math.max(1, Math.ceil((end - start) / 60000 / 12)) * 60000;
+            var edge = Math.floor(start / step) * step;
+            var labels = [];
+            var cursor = 0;
+            var running = {};
+
+            series.forEach(function (serie) { running[serie.id] = 0; });
+
+            labels.push(clock(edge));
+            series.forEach(function (serie) { serie.points.push(0); });
+
+            while (edge <= end) {
+                edge += step;
+
+                while (cursor < st.ballots.length && times[cursor] < edge) {
+                    (st.ballots[cursor].choices || []).forEach(function (id) {
+                        if (id in running) {
+                            running[id] += 1;
+                        }
+                    });
+                    cursor += 1;
+                }
+
+                labels.push(clock(edge));
+                series.forEach(function (serie) { serie.points.push(running[serie.id]); });
+            }
+
+            var max = 0;
+
+            series.forEach(function (serie) { max = Math.max(max, running[serie.id]); });
+
+            return { has_data: true, labels: labels, folded: 0, max: max, series: series };
+        }
+
+        /* ------------------------------------------ sélecteurs de scrutin ---- */
+        all('[data-results-types]').forEach(function (bar) {
+            bar.innerHTML = TYPES.map(function (t) {
+                return '<button type="button" role="tab" data-results-type="' + t.key + '">' + t.short + '</button>';
+            }).join('');
         });
 
-        var live = window.VoteLive;
+        document.addEventListener('click', function (event) {
+            var hit = event.target.closest('[data-results-type]');
 
-        function paintRanking(bumpedId) {
-            var total = state.votes.reduce(function (sum, value) { return sum + value; }, 0);
-            var sorted = CANDIDATES.map(function (candidate, index) {
-                return { id: candidate.id, votes: state.votes[index] };
-            }).sort(function (a, b) { return b.votes - a.votes; });
-            var best = sorted[0].votes;
+            if (hit) {
+                current = hit.getAttribute('data-results-type');
+                rowsSig = null;
+                winnerSig = null;
+                renderAll(null);
+            }
+        });
+
+        /* ------------------------------------------ lignes du classement ---- */
+        function buildRows(st) {
+            var sig = st.key + '|' + st.candidates.map(function (c) {
+                return c.id + ':' + c.name + ':' + (c.photo ? c.photo.length : 0);
+            }).join(',');
+
+            if (sig === rowsSig) {
+                return;
+            }
+
+            rowsSig = sig;
+
+            // Autre scrutin : graphiques repartis de zéro (pas de reste du précédent).
+            all('[data-demo-chart], [data-demo-pace], [data-demo-share], [data-demo-table]').forEach(function (node) {
+                var fresh = node.cloneNode(false);
+
+                fresh.classList.remove('chart-share');
+                node.parentNode.replaceChild(fresh, node);
+            });
 
             containers.forEach(function (container) {
-                container.classList.toggle('is-closed', state.closed);
+                container.textContent = '';
 
-                // Les lignes glissent vers leur nouveau rang (js/live.js).
+                if (!st.candidates.length) {
+                    var empty = document.createElement('p');
+
+                    empty.className = 'muted';
+                    empty.textContent = 'Aucun candidat pour ce scrutin.';
+                    container.appendChild(empty);
+
+                    return;
+                }
+
+                st.candidates.forEach(function (candidate, index) {
+                    var row = document.createElement('div');
+
+                    row.className = 'result';
+                    row.setAttribute('data-row', candidate.id);
+                    row.innerHTML =
+                        '<span class="result-rank"></span>' +
+                        '<span class="avatar-initials avatar-sm" aria-hidden="true"></span>' +
+                        '<div class="result-body">' +
+                        '<div class="result-top">' +
+                        '<span class="result-name"><i class="result-key"></i><span data-name></span></span>' +
+                        '<span class="result-numbers"><span class="result-votes">0</span> voix <span class="result-pct"></span></span>' +
+                        '</div>' +
+                        '<div class="track"><span class="track-fill"></span></div>' +
+                        '</div>';
+
+                    var badge = row.querySelector('.avatar-initials');
+
+                    if (candidate.photo) {
+                        var img = document.createElement('img');
+
+                        img.className = 'avatar avatar-sm';
+                        img.src = candidate.photo;
+                        img.alt = '';
+                        badge.replaceWith(img);
+                    } else {
+                        badge.textContent = initials(candidate.name);
+                    }
+
+                    row.querySelector('[data-name]').textContent = candidate.name;
+                    container.appendChild(row);
+                    row.querySelector('.result-key').style.background =
+                        window.VoteChart.colorOf(container, (index % 8) + 1);
+                });
+            });
+        }
+
+        function paintRanking(st, bumpedId) {
+            var sorted = sortedEntries(st);
+            var total = sorted.reduce(function (sum, e) { return sum + e.votes; }, 0);
+            var best = sorted.length ? sorted[0].votes : 0;
+
+            containers.forEach(function (container) {
+                container.classList.toggle('is-closed', st.closed);
+
+                if (!sorted.length) {
+                    return;
+                }
+
                 live.reorder(container, function () {
                     sorted.forEach(function (entry, index) {
                         var row = container.querySelector('[data-row="' + entry.id + '"]');
+
+                        if (!row) {
+                            return;
+                        }
+
                         var votes = row.querySelector('.result-votes');
 
                         row.style.order = String(index);
@@ -884,9 +943,6 @@
                         row.querySelector('.result-rank').textContent = index + 1;
                         row.querySelector('.result-pct').textContent = pct(total ? entry.votes / total : 0);
                         row.querySelector('.track-fill').style.width = (best ? entry.votes * 100 / best : 0) + '%';
-
-                        // Le compteur défile ; une pastille « +1 » s'envole
-                        // au-dessus du candidat qui vient de recevoir une voix.
                         live.text(votes, entry.votes);
 
                         if (entry.id === bumpedId) {
@@ -896,22 +952,22 @@
                 });
             });
 
-            // Phrase de synthèse : ce que dit le classement, en une ligne.
-            var leaders = sorted.filter(function (entry) { return entry.votes === best; });
-            var nameOf = function (entry) {
-                return CANDIDATES.filter(function (c) { return c.id === entry.id; })[0].name;
-            };
+            var leaders = sorted.filter(function (e) { return e.votes === best; });
             var headline;
 
-            if (!best) {
+            if (!sorted.length) {
+                headline = 'Aucun candidat n\'est inscrit à ce scrutin.';
+            } else if (!best) {
                 headline = 'En attente des premiers bulletins.';
             } else if (leaders.length === 2) {
-                headline = 'Égalité en tête entre ' + nameOf(leaders[0]) + ' et ' + nameOf(leaders[1]) + '.';
+                headline = 'Égalité en tête entre ' + leaders[0].name + ' et ' + leaders[1].name + '.';
             } else if (leaders.length > 2) {
                 headline = 'Égalité en tête entre ' + leaders.length + ' candidats.';
             } else {
-                headline = nameOf(sorted[0]) + (state.closed ? ' est élu(e) avec ' : ' mène avec ')
-                    + (best - sorted[1].votes) + ' voix d\'avance.';
+                var gap = best - (sorted[1] ? sorted[1].votes : 0);
+
+                headline = sorted[0].name + (st.closed ? ' est élu(e) avec ' : ' mène avec ')
+                    + gap + ' voix d\'avance.';
             }
 
             all('[data-demo-headline]').forEach(function (node) {
@@ -922,25 +978,32 @@
             all('[data-demo-mini]').forEach(function (mini) {
                 all('.float-row', mini).forEach(function (line, index) {
                     var entry = sorted[index];
-                    var candidate = CANDIDATES.filter(function (c) { return c.id === entry.id; })[0];
 
-                    line.querySelector('.float-name').textContent = candidate.name.split(' ')[0];
+                    line.hidden = !entry;
+
+                    if (!entry) {
+                        return;
+                    }
+
+                    line.querySelector('.float-name').textContent = entry.name.split(' ')[0];
                     live.text(line.querySelector('.float-value'), entry.votes);
                     line.querySelector('.track-fill').style.width = (best ? entry.votes * 100 / best : 0) + '%';
                 });
             });
 
-            return total;
+            return { total: total, sorted: sorted, tied: leaders.length > 1 };
         }
 
-        function paintStats(total) {
+        function paintStats(st, total) {
             var stats = {
-                ballots: state.ballots,
+                ballots: st.ballots.length,
                 votes: total,
-                abstentions: state.abstentions,
-                remaining: Math.max(0, EXPECTED - state.ballots),
-                turnout: pct(state.ballots / EXPECTED),
-                blankShare: pct(state.ballots ? state.abstentions / state.ballots : 0)
+                abstentions: st.abstentions,
+                remaining: Math.max(0, st.expected - st.ballots.length),
+                turnout: pct(st.ballots.length / st.expected),
+                blankShare: pct(st.ballots.length ? st.abstentions / st.ballots.length : 0),
+                expected: 'sur ' + st.expected + ' inscrits',
+                spread: 'réparties entre ' + st.candidates.length + ' candidat' + (st.candidates.length > 1 ? 's' : '')
             };
 
             Object.keys(stats).forEach(function (key) {
@@ -949,37 +1012,75 @@
                 });
             });
 
-            all('[data-demo-meter]').forEach(function (node) {
-                node.style.width = (state.ballots * 100 / EXPECTED) + '%';
-            });
+            var label = { open: 'Ouvert', closed: 'Clos', draft: 'Brouillon' }[st.status] || 'Ouvert';
 
             all('[data-demo-status]').forEach(function (node) {
-                node.textContent = state.closed ? 'Clos' : 'Ouvert';
-                node.classList.toggle('badge-open', !state.closed);
-                node.classList.toggle('badge-closed', state.closed);
+                node.textContent = label;
+                node.classList.toggle('badge-open', st.status === 'open');
+                node.classList.toggle('badge-closed', st.status === 'closed');
+                node.classList.toggle('badge-draft', st.status === 'draft');
             });
 
             all('.live-dot').forEach(function (dot) {
-                dot.classList.toggle('is-off', state.closed);
+                dot.classList.toggle('is-off', st.status !== 'open');
             });
 
-            var now = state.labels[state.labels.length - 1];
+            var last = st.ballots.length ? clock(st.ballots[st.ballots.length - 1].at) : null;
 
             all('[data-demo-live]').forEach(function (node) {
-                live.text(node, state.closed
-                    ? 'Scrutin clos à ' + now + ', résultats définitifs'
-                    : state.paused
-                    ? 'Résultats remis à zéro à ' + now + ', en attente des bulletins'
-                    : (state.live ? 'Dernier bulletin reçu à ' + now : 'Mise à jour automatique toutes les 2 secondes'));
+                live.text(node, st.closed
+                    ? 'Scrutin clos' + (last ? ', dernier bulletin à ' + last : '') + '. Résultats définitifs.'
+                    : st.status === 'draft'
+                    ? 'Scrutin pas encore ouvert.'
+                    : (last ? 'Dernier bulletin reçu à ' + last : 'En attente des premiers bulletins.'));
             });
 
             all('[data-demo-live-short]').forEach(function (node) {
-                node.textContent = state.closed ? 'Résultats définitifs' : 'Résultats en direct';
+                node.textContent = st.closed ? 'Résultats définitifs' : 'Résultats en direct';
+            });
+
+            // Titres, code et QR code du scrutin affiché.
+            all('[data-results-title]').forEach(function (node) {
+                node.textContent = st.type.label + ', promotion 2026';
+            });
+
+            all('[data-screen-type]').forEach(function (node) {
+                node.textContent = 'AIMS Sénégal, ' + st.type.label;
+            });
+
+            all('[data-float-type]').forEach(function (node) {
+                node.textContent = st.type.label;
+            });
+
+            all('[data-screen-code]').forEach(function (node) {
+                node.textContent = st.type.code;
+            });
+
+            all('[data-results-type]').forEach(function (button) {
+                button.setAttribute('aria-selected', String(button.getAttribute('data-results-type') === st.key));
+            });
+
+            var link = Scr.voteLink(st.key);
+
+            all('[data-vote-link]').forEach(function (node) {
+                node.href = link;
+            });
+
+            var qr = QR[st.key];
+
+            all('.screen-qr').forEach(function (svg) {
+                if (!qr) {
+                    return;
+                }
+
+                svg.setAttribute('viewBox', '-2 -2 ' + (qr.n + 4) + ' ' + (qr.n + 4));
+                svg.setAttribute('aria-label', 'QR code du lien de vote : ' + link);
+                svg.querySelector('path').setAttribute('d', qr.d);
             });
         }
 
-        /* Participation : pourcentage, barre et effectif, sans anneau. */
-        function paintTurnout(node) {
+        /* Participation : pourcentage, barre et effectif. */
+        function paintTurnout(node, st) {
             if (!node.__turnout) {
                 node.classList.remove('chart');
                 node.innerHTML = '<div class="turnout">'
@@ -995,66 +1096,74 @@
             }
 
             var t = node.__turnout;
+            var n = st.ballots.length;
 
-            live.text(t.value, pct(state.ballots / EXPECTED));
-            t.bar.style.width = (state.ballots * 100 / EXPECTED) + '%';
-            t.foot.textContent = state.ballots + ' bulletin' + (state.ballots > 1 ? 's' : '')
-                + ' sur ' + EXPECTED + ' inscrits';
+            live.text(t.value, pct(n / st.expected));
+            t.bar.style.width = Math.min(100, n * 100 / st.expected) + '%';
+            t.foot.textContent = n + ' bulletin' + (n > 1 ? 's' : '') + ' sur ' + st.expected + ' inscrits';
         }
 
-        function paintCharts() {
+        function paintCharts(st) {
             var chart = window.VoteChart;
 
             if (!chart) {
                 return;
             }
 
-            var data = timeline();
+            var data = timeline(st);
 
             all('[data-demo-chart]').forEach(function (node) { chart.render(node, data); });
             all('[data-demo-pace]').forEach(function (node) { chart.pace(node, data); });
             all('[data-demo-share]').forEach(function (node) { chart.share(node, data); });
             all('[data-demo-table]').forEach(function (node) { chart.table(node, data); });
-            all('[data-demo-ring]').forEach(function (node) {
-                paintTurnout(node);
-            });
+            all('[data-demo-ring]').forEach(function (node) { paintTurnout(node, st); });
         }
 
-        function renderAll(bumpedId) {
-            if (!state) {
+        /* Proclamation de l'élu(e) à la clôture du scrutin. */
+        function paintWinner(st, ranking) {
+            var top = ranking.sorted[0];
+            var show = st.closed && top && top.votes > 0 && !ranking.tied;
+            var sig = show ? st.key + ':' + top.id + ':' + top.votes + ':' + ranking.total : null;
+
+            if (sig === winnerSig) {
                 return;
             }
 
-            paintStats(paintRanking(bumpedId));
-            paintCharts();
-        }
-
-        /* Annonce automatique du vainqueur, comme à la clôture réelle. */
-        function revealWinner() {
-            var total = state.votes.reduce(function (sum, value) { return sum + value; }, 0);
-            var topIndex = state.votes.indexOf(Math.max.apply(null, state.votes));
-            var top = CANDIDATES[topIndex];
+            winnerSig = sig;
 
             all('[data-demo-winner]').forEach(function (slot) {
                 slot.textContent = '';
 
+                if (!show) {
+                    return;
+                }
+
+                var candidate = st.candidates.filter(function (c) { return c.id === top.id; })[0];
                 var box = document.createElement('div');
-                var photo = document.createElement('span');
+                var photo;
                 var body = document.createElement('div');
-                var parts = [
-                    ['winner-label', 'Élu(e), Focal Point Academic'],
-                    ['winner-name', top.name],
-                    ['winner-score', state.votes[topIndex] + ' voix, soit '
-                        + pct(total ? state.votes[topIndex] / total : 0) + ' des suffrages exprimés']
-                ];
+
+                if (candidate && candidate.photo) {
+                    photo = document.createElement('img');
+                    photo.className = 'avatar winner-photo';
+                    photo.src = candidate.photo;
+                    photo.alt = '';
+                } else {
+                    photo = document.createElement('span');
+                    photo.className = 'avatar-initials winner-photo';
+                    photo.setAttribute('aria-hidden', 'true');
+                    photo.textContent = initials(top.name);
+                }
 
                 box.className = 'winner';
-                photo.className = 'avatar-initials winner-photo';
-                photo.setAttribute('aria-hidden', 'true');
-                photo.textContent = top.initials;
                 body.className = 'winner-body';
 
-                parts.forEach(function (part) {
+                [
+                    ['winner-label', 'Élu(e), ' + st.type.label],
+                    ['winner-name', top.name],
+                    ['winner-score', top.votes + ' voix, soit '
+                        + pct(ranking.total ? top.votes / ranking.total : 0) + ' des suffrages exprimés']
+                ].forEach(function (part) {
                     var line = document.createElement('div');
 
                     line.className = part[0];
@@ -1065,68 +1174,38 @@
                 box.appendChild(photo);
                 box.appendChild(body);
                 slot.appendChild(box);
-
                 window.setTimeout(function () { box.classList.add('is-revealed'); }, 40);
             });
         }
 
-        function tick() {
-            if (document.hidden || state.closed || state.paused) {
-                return;
-            }
+        function renderAll() {
+            state = compute(current);
 
-            var best = Math.max.apply(null, state.votes);
-            var tied = state.votes.filter(function (value) { return value === best; }).length > 1;
-
-            // La démonstration ne clôt pas sur une égalité : elle attend le bulletin suivant.
-            if (state.ballots >= CLOSE_AT && !tied) {
-                state.closed = true;
-                revealWinner();
-                renderAll(null);
-
-                return;
-            }
-
-            // Une nouvelle tranche de 3 minutes s'ouvre tous les trois bulletins.
-            if (state.inBucket >= 3) {
-                closeBucket();
-            }
-
+            // Candidat qui vient de gagner une voix (pastille « +1 »).
             var bumped = null;
+            var before = lastVotes[current];
 
-            if (!tied && Math.random() < 0.08) {
-                cast(-1);
-            } else {
-                var weights = [1.1, 1.1, 1, 0.6];
-                var draw = Math.random() * 3.8;
-                var pick = 0;
-
-                while (draw > weights[pick]) {
-                    draw -= weights[pick];
-                    pick += 1;
-                }
-
-                cast(pick);
-                bumped = CANDIDATES[pick].id;
+            if (before) {
+                Object.keys(state.votes).forEach(function (id) {
+                    if (state.votes[id] > (before[id] || 0)) {
+                        bumped = id;
+                    }
+                });
             }
 
-            state.inBucket += 1;
-            state.live = true;
-            state.history[state.history.length - 1] = state.votes.slice();
-            renderAll(bumped);
+            lastVotes[current] = state.votes;
+
+            buildRows(state);
+
+            var ranking = paintRanking(state, bumped);
+
+            paintStats(state, ranking.total);
+            paintCharts(state);
+            paintWinner(state, ranking);
         }
 
-        all('[data-demo-replay]').forEach(function (button) {
-            button.addEventListener('click', function () {
-                all('[data-demo-winner]').forEach(function (slot) { slot.textContent = ''; });
-                storeReset(false);
-                seed();
-                renderAll(null);
-            });
-        });
-
-        // Appelé par le bouton de l'administration (js/scrutins.js).
-        window.PreviewResults = { reset: resetResults };
+        // Appelé par js/scrutins.js après chaque bulletin ou action d'administration.
+        window.PreviewResults = { refresh: function () { renderAll(); } };
 
         /* Plein écran pour la vue vidéoprojecteur (aperçu uniquement). */
         all('[data-fullscreen]').forEach(function (button) {
@@ -1142,12 +1221,6 @@
                 target.requestFullscreen().catch(function () {});
             });
         });
-
-        if (wasReset()) {
-            blank();
-        } else {
-            seed();
-        }
 
         refreshLocks();
 
@@ -1168,7 +1241,10 @@
             }
         });
 
-        window.setInterval(tick, 2000);
+        // Bulletin déposé dans un autre onglet du même navigateur.
+        window.addEventListener('storage', function () {
+            renderAll();
+        });
     })();
 </script>
 </body>
