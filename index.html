@@ -187,9 +187,9 @@
         <div class="preview-tabs">
             <div class="segmented" role="tablist" aria-label="Écrans de l'aperçu">
                 <button role="tab" aria-selected="true" data-panel="accueil">Accueil</button>
-                <button role="tab" aria-selected="false" data-panel="email">Vérification</button>
-                <button role="tab" aria-selected="false" data-panel="bulletin">Bulletins</button>
-                <button role="tab" aria-selected="false" data-panel="resultats">Résultats</button>
+                <button role="tab" aria-selected="false" data-panel="email">1. Vérification</button>
+                <button role="tab" aria-selected="false" data-panel="bulletin">2. Bulletins</button>
+                <button role="tab" aria-selected="false" data-panel="resultats">3. Résultats</button>
                 <button role="tab" aria-selected="false" data-panel="ecran">Vidéoprojecteur</button>
                 <button role="tab" aria-selected="false" data-panel="admin">Administration</button>
             </div>
@@ -199,6 +199,10 @@
 </div>
 
 <main class="container">
+
+    <div class="flow-notice" data-flow-notice role="status" hidden>
+        <span data-flow-text></span>
+    </div>
 
     <!-- ======================================================= 1. Accueil -->
     <section class="panel" id="panel-accueil">
@@ -573,12 +577,61 @@
         /* ---------------------------------------------------------- onglets */
         var tabs = all('.preview-tabs [role="tab"]');
 
+        /* Message affiché quand un écran est demandé trop tôt dans le parcours. */
+        var flow = document.querySelector('[data-flow-notice]');
+
+        function flowNotice(text) {
+            if (!flow) {
+                return;
+            }
+
+            flow.hidden = !text;
+            flow.querySelector('[data-flow-text]').textContent = text || '';
+        }
+
+        function blocked(name) {
+            return window.VoteScrutins && window.VoteScrutins.access
+                ? window.VoteScrutins.access(name)
+                : null;
+        }
+
+        // Onglets grisés tant que l'étape précédente n'est pas faite.
+        function refreshLocks() {
+            tabs.forEach(function (tab) {
+                var rule = blocked(tab.getAttribute('data-panel'));
+
+                tab.classList.toggle('is-locked', !!rule);
+
+                if (rule) {
+                    tab.setAttribute('title', rule.message);
+                } else {
+                    tab.removeAttribute('title');
+                }
+            });
+        }
+
+        window.PreviewLocks = refreshLocks;
+
         function goTo(name, push) {
             var target = document.getElementById('panel-' + name);
 
             if (!target) {
                 return;
             }
+
+            // Respect du parcours : on renvoie vers l'étape manquante.
+            var rule = blocked(name);
+            var guard = 0;
+            var message = null;
+
+            while (rule && guard++ < 4) {
+                message = rule.message;
+                name = rule.panel;
+                rule = blocked(name);
+            }
+
+            flowNotice(message);
+            target = document.getElementById('panel-' + name);
 
             tabs.forEach(function (tab) {
                 var active = tab.getAttribute('data-panel') === name;
@@ -595,11 +648,12 @@
                 link.classList.toggle('is-active', (link.getAttribute('data-nav') === 'admin') === (name === 'admin'));
             });
 
-            if (push !== false && window.history && window.history.replaceState) {
+            if ((push !== false || message) && window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '#' + name);
             }
 
             window.scrollTo(0, 0);
+            refreshLocks();
             renderAll(null);
         }
 
@@ -1095,13 +1149,24 @@
             seed();
         }
 
+        refreshLocks();
+
         var start = (window.location.hash || '').replace('#', '');
 
-        if (start && document.getElementById('panel-' + start)) {
+        if (start && document.getElementById('panel-' + start) && start !== 'accueil') {
             goTo(start, false);
         } else {
             renderAll(null);
         }
+
+        // Adresse modifiée à la main (#resultats…) : mêmes règles de parcours.
+        window.addEventListener('hashchange', function () {
+            var name = (window.location.hash || '').replace('#', '');
+
+            if (name && document.getElementById('panel-' + name)) {
+                goTo(name, false);
+            }
+        });
 
         window.setInterval(tick, 2000);
     })();

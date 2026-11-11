@@ -1341,6 +1341,38 @@
         renderEmail();
         renderBallot();
         renderAdmin();
+
+        if (window.PreviewLocks) {
+            window.PreviewLocks();
+        }
+    }
+
+    /* Parcours obligatoire : Vérification -> Bulletins -> Résultats.
+       Renvoie null si l'écran est accessible, sinon l'écran à faire avant
+       et le message à afficher. L'administrateur déverrouillé voit tout. */
+    function access(panel) {
+        if (adminUnlocked()) {
+            return null;
+        }
+
+        if (panel === 'ecran') {
+            return { panel: 'admin', message: 'La vue vidéoprojecteur est réservée à l\'administration. Saisissez le code secret.' };
+        }
+
+        if ((panel === 'bulletin' || panel === 'resultats') && !voterEmail()) {
+            return {
+                panel: 'email',
+                message: panel === 'bulletin'
+                    ? 'Étape 1 : vérifiez votre adresse institutionnelle pour accéder aux bulletins.'
+                    : 'Étape 1 : vérifiez votre adresse institutionnelle. Les résultats sont accessibles après le vote.'
+            };
+        }
+
+        if (panel === 'resultats' && nextUnvoted('') !== null) {
+            return { panel: 'bulletin', message: 'Étape 2 : votez pour chaque scrutin ouvert (le vote blanc est possible). Les résultats sont accessibles ensuite.' };
+        }
+
+        return null;
     }
 
     renderAll();
@@ -1349,6 +1381,7 @@
         types: TYPES,
         data: function () { return data; },
         render: renderAll,
-        voteLink: voteLink
+        voteLink: voteLink,
+        access: access
     };
 })();
