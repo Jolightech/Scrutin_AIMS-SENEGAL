@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Vote AIMS — aperçu de l'interface</title>
-    <link rel="stylesheet" href="css/aims.css?v=20261111b">
+    <link rel="stylesheet" href="css/aims.css?v=20261111c">
     <style>
         /* Habillage propre à l'aperçu : n'existe pas dans le projet Laravel. */
         .preview-bar {
@@ -47,15 +47,24 @@
 
         /* En plein écran, la vue vidéoprojecteur occupe tout l'écran. */
         .screen-demo:fullscreen {
+            border: 0;
+            border-top: 8px solid var(--brand);
             border-radius: 0;
             overflow: auto;
-            display: grid;
-            align-content: center;
+            background: #fff;
         }
 
         .screen-demo:fullscreen .screen-wrap {
-            padding: 3vh 3vw;
+            padding: 2.5vh 3vw;
             width: 100%;
+            max-width: none;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen-demo:fullscreen .screen-grid {
+            flex: 1;
         }
 
         .preview-tabs::-webkit-scrollbar {
@@ -230,23 +239,6 @@
                 <div class="float-card" aria-hidden="true">
                     <div class="float-head"><span class="live-dot"></span> <span data-demo-live-short>Résultats en direct</span></div>
                     <div data-demo-ring style="margin-bottom:1.1rem"></div>
-                    <div data-demo-mini>
-                        <div class="float-row">
-                            <span class="float-name">Aminata</span>
-                            <span class="track"><span class="track-fill" style="width:100%"></span></span>
-                            <span class="float-value">9</span>
-                        </div>
-                        <div class="float-row">
-                            <span class="float-name">Moussa</span>
-                            <span class="track"><span class="track-fill" style="width:78%"></span></span>
-                            <span class="float-value">7</span>
-                        </div>
-                        <div class="float-row">
-                            <span class="float-name">Fatou</span>
-                            <span class="track"><span class="track-fill" style="width:67%"></span></span>
-                            <span class="float-value">6</span>
-                        </div>
-                    </div>
                     <p class="float-foot"><span data-float-type>Focal Point Academic</span>, mis à jour à chaque bulletin.</p>
                 </div>
             </div>
@@ -458,17 +450,29 @@
                 <span class="label" id="screen-type-label">Scrutin à projeter</span>
                 <div class="segmented" role="tablist" aria-labelledby="screen-type-label" data-results-types></div>
             </div>
-            <div class="row" style="margin-top:1rem">
-                <button class="btn btn-ghost btn-sm" type="button" data-fullscreen>Afficher en plein écran</button>
+            <div class="row" style="margin-top:1rem; gap:.6rem 1.4rem">
+                <button class="btn btn-sm" type="button" data-fullscreen>Afficher en plein écran</button>
+                <label class="check-inline">
+                    <input type="checkbox" data-screen-rotate>
+                    Faire défiler les quatre scrutins toutes les 15 secondes
+                </label>
             </div>
+            <p class="small muted" style="margin:.7rem 0 0">En plein écran : flèches ← et → pour changer de scrutin, Échap pour quitter.</p>
         </div>
 
         <div class="screen-demo screen">
             <div class="screen-wrap">
+                <div class="screen-top">
+                    <img class="screen-logo" src="img/aims-senegal-logo.jpg" alt="AIMS Sénégal">
+                    <span class="screen-live" data-screen-live><span class="live-dot" aria-hidden="true"></span> <span data-demo-live-short>Résultats en direct</span></span>
+                    <span class="screen-last" data-demo-live aria-live="polite">En attente des premiers bulletins.</span>
+                    <span class="screen-clock" data-screen-clock aria-hidden="true">00:00:00</span>
+                    <span class="screen-rotate-bar" aria-hidden="true"><span data-screen-rotate-bar></span></span>
+                </div>
                 <div class="screen-head">
                     <div>
-                        <div class="eyebrow" data-screen-type>AIMS Sénégal, Focal Point Academic</div>
-                        <h1>Promotion 2026</h1>
+                        <div class="eyebrow">Élection des focal points, promotion 2026</div>
+                        <h1 data-screen-title>Focal Point Academic</h1>
                     </div>
                     <div class="screen-stats">
                         <div>
@@ -509,7 +513,7 @@
 
                 <div class="screen-footer">
                     <span class="badge badge-open" data-demo-status>Ouvert</span>
-                    <span data-demo-live-short>Résultats en direct</span>
+                    <span class="screen-index" data-screen-index>Scrutin 1 sur 4</span>
                     <div class="screen-join">
                         <div>
                             Pour voter : scannez le QR code<br><a href="https://jolightech.github.io/Scrutin_AIMS-SENEGAL/?scrutin=focal-point-academic#email" data-vote-link>jolightech.github.io/Scrutin_AIMS-SENEGAL</a>
@@ -560,11 +564,11 @@
     Le choix de chaque votant reste secret : les bulletins ne portent aucune adresse email.
 </footer>
 
-<script src="js/ballot.js?v=20261111b"></script>
-<script src="js/scrutins.js?v=20261111b"></script>
-<script src="js/live.js?v=20261111b"></script>
-<script src="js/chart.js?v=20261111b"></script>
-<script src="js/qr.js?v=20261111b"></script>
+<script src="js/ballot.js?v=20261111c"></script>
+<script src="js/scrutins.js?v=20261111c"></script>
+<script src="js/live.js?v=20261111c"></script>
+<script src="js/chart.js?v=20261111c"></script>
+<script src="js/qr.js?v=20261111c"></script>
 <script>
     (function () {
         'use strict';
@@ -870,12 +874,6 @@
                 container.textContent = '';
 
                 if (!st.candidates.length) {
-                    var empty = document.createElement('p');
-
-                    empty.className = 'muted';
-                    empty.textContent = 'Aucun candidat pour ce scrutin.';
-                    container.appendChild(empty);
-
                     return;
                 }
 
@@ -956,7 +954,7 @@
             var headline;
 
             if (!sorted.length) {
-                headline = 'Aucun candidat n\'est inscrit à ce scrutin.';
+                headline = 'Aucun candidat n\'est encore inscrit à ce scrutin.';
             } else if (!best) {
                 headline = 'En attente des premiers bulletins.';
             } else if (leaders.length === 2) {
@@ -1044,8 +1042,18 @@
                 node.textContent = st.type.label + ', promotion 2026';
             });
 
-            all('[data-screen-type]').forEach(function (node) {
-                node.textContent = 'AIMS Sénégal, ' + st.type.label;
+            all('[data-screen-title]').forEach(function (node) {
+                node.textContent = st.type.label;
+            });
+
+            var position = TYPES.map(function (t) { return t.key; }).indexOf(st.key) + 1;
+
+            all('[data-screen-index]').forEach(function (node) {
+                node.textContent = 'Scrutin ' + position + ' sur ' + TYPES.length;
+            });
+
+            all('[data-screen-live]').forEach(function (node) {
+                node.classList.toggle('is-off', st.status !== 'open');
             });
 
             all('[data-float-type]').forEach(function (node) {
@@ -1114,7 +1122,10 @@
 
             all('[data-demo-chart]').forEach(function (node) { chart.render(node, data); });
             all('[data-demo-pace]').forEach(function (node) { chart.pace(node, data); });
-            all('[data-demo-share]').forEach(function (node) { chart.share(node, data); });
+            all('[data-demo-share]').forEach(function (node) {
+                node.hidden = !st.candidates.length;
+                chart.share(node, data);
+            });
             all('[data-demo-table]').forEach(function (node) { chart.table(node, data); });
             all('[data-demo-ring]').forEach(function (node) { paintTurnout(node, st); });
         }
@@ -1203,6 +1214,88 @@
             paintCharts(state);
             paintWinner(state, ranking);
         }
+
+        /* ------------------------------------- page de direct (écran) ---- */
+        function showType(key) {
+            current = key;
+            rowsSig = null;
+            winnerSig = null;
+            renderAll();
+        }
+
+        function stepType(delta) {
+            var keys = TYPES.map(function (t) { return t.key; });
+            var index = (keys.indexOf(current) + delta + keys.length) % keys.length;
+
+            showType(keys[index]);
+        }
+
+        // Horloge de la salle.
+        function tickClock() {
+            var now = new Date();
+            var text = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2)
+                + ':' + ('0' + now.getSeconds()).slice(-2);
+
+            all('[data-screen-clock]').forEach(function (node) { node.textContent = text; });
+        }
+
+        tickClock();
+        window.setInterval(tickClock, 1000);
+
+        // Défilement automatique des quatre scrutins.
+        var ROTATE_MS = 15000;
+        var rotateStart = 0;
+        var rotateBox = document.querySelector('[data-screen-rotate]');
+
+        function rotating() {
+            return rotateBox && rotateBox.checked;
+        }
+
+        if (rotateBox) {
+            rotateBox.addEventListener('change', function () {
+                rotateStart = Date.now();
+                document.querySelector('.screen-demo').classList.toggle('is-rotating', rotating());
+            });
+        }
+
+        window.setInterval(function () {
+            var bar = document.querySelector('[data-screen-rotate-bar]');
+
+            if (!rotating()) {
+                if (bar) {
+                    bar.style.width = '0';
+                }
+
+                return;
+            }
+
+            var elapsed = Date.now() - rotateStart;
+
+            if (elapsed >= ROTATE_MS) {
+                rotateStart = Date.now();
+                elapsed = 0;
+                stepType(1);
+            }
+
+            if (bar) {
+                bar.style.width = (elapsed * 100 / ROTATE_MS) + '%';
+            }
+        }, 250);
+
+        // Flèches gauche / droite sur la page de direct.
+        document.addEventListener('keydown', function (event) {
+            var panel = document.getElementById('panel-ecran');
+
+            if (!panel || panel.hidden || /INPUT|TEXTAREA|SELECT/.test((event.target || {}).tagName || '')) {
+                return;
+            }
+
+            if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+                event.preventDefault();
+                rotateStart = Date.now();
+                stepType(event.key === 'ArrowRight' ? 1 : -1);
+            }
+        });
 
         // Appelé par js/scrutins.js après chaque bulletin ou action d'administration.
         window.PreviewResults = { refresh: function () { renderAll(); } };

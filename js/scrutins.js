@@ -267,10 +267,11 @@
                 return parsed;
             }
         } catch (error) {
-            /* stockage indisponible ou corrompu : on repart des donnees de demo */
+            /* stockage indisponible ou corrompu : on repart d'un tableau vide */
         }
 
-        return seedData();
+        // Premier lancement : aucun candidat fictif, l'administrateur les ajoute.
+        return emptyData();
     }
 
     function save() {
